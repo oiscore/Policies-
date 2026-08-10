@@ -1,0 +1,21 @@
+{
+  "short_name": "Fracturepedia",
+  "name": "Fracturepedia Official Wiki",
+  "start_url": "/",
+  "background_color": "#0d0e15",
+  "theme_color": "#0d0e15",
+  "display": "standalone",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

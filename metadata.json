@@ -1,0 +1,6 @@
+{
+  "name": "Fracture-Verse LLC - Master Legal & Compliance Portal",
+  "description": "Official corporate legal manual, division compliance policies, searchable database, PDF generator, and SEO-optimized compliance platform for Fracture-Verse LLC.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

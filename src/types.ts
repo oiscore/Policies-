@@ -1,0 +1,62 @@
+export interface TableRow {
+  tier: string;
+  function: string;
+  consentBasis: string;
+}
+
+export interface Section {
+  id: string;
+  sectionNumber: string;
+  title: string;
+  content: string;
+  bullets?: string[];
+  table?: TableRow[];
+  statutes?: string[];
+}
+
+export interface Article {
+  id: string;
+  articleNumber: string;
+  title: string;
+  shortTitle: string;
+  category: string;
+  division: string;
+  iconName: string;
+  summary: string;
+  sections: Section[];
+}
+
+export type DivisionCategory =
+  | 'ALL'
+  | 'PARENT_GOVERNANCE'
+  | 'COMICS'
+  | 'FILMS'
+  | 'SOUND'
+  | 'FRACTUREPEDIA'
+  | 'OIS_CORE'
+  | 'ACCESSIBILITY'
+  | 'COOKIE_PRIVACY'
+  | 'ENFORCEMENT';
+
+export interface SearchFilter {
+  query: string;
+  division: DivisionCategory;
+  statuteFilter?: string;
+  bookmarkOnly?: boolean;
+}
+
+export interface CookiePreferences {
+  strictlyNecessary: boolean;
+  functional: boolean;
+  performance: boolean;
+  advertising: boolean;
+  timestamp?: string;
+}
+
+export interface AccessibilityReport {
+  name: string;
+  email: string;
+  url: string;
+  barrierDescription: string;
+  preferredFormat: string;
+}
