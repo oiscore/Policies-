@@ -2,27 +2,47 @@
 <html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <!-- Universal Screen Scaling & Lock -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <!-- Universal Screen Scaling & Accessibility for Safari, Chrome, Edge -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="msapplication-TileColor" content="#0d0e15" />
+    <meta name="msapplication-tap-highlight" content="no" />
     
-    <!-- Web Standards App Mode (Android, Chrome, Windows, Mac) -->
+    <!-- Web Standards App Mode (Android, Chrome, Windows, Mac, iOS Safari) -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="#0d0e15" />
     <link rel="icon" type="image/png" href="/logo.png" />
     <link rel="apple-touch-icon" href="/logo.png" />
     <link rel="manifest" href="/manifest.json" />
 
-    <!-- iOS / iPadOS App Emulation -->
+    <!-- iOS / iPadOS Safari Webkit Optimization -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Fracturepedia" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Fracture-Verse Legal" />
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
+
+    <!-- Search Engine Verification Credentials (Backend Verification) -->
+    <meta name="google-site-verification" content="google-site-verification-fracture-verse-master-v1" />
+    <meta name="msvalidate.01" content="BING-SEARCH-CONSOLE-VERIFICATION-FRACTUREVERSE" />
+    <meta name="yandex-verification" content="yandex-verification-fv-compliance-2026" />
+    <meta name="baidu-site-verification" content="codeva-FVLLC-Verification-2026" />
+    <meta name="p:domain_verify" content="pinterest-domain-verification-fv-2026" />
 
     <!-- SEO Meta Tags -->
     <title>Fracture-Verse LLC — Master Corporate Legal & Compliance Manual</title>
-    <meta name="description" content="Official Master Corporate Legal, IP Holding, and Division Compliance Manual for Fracture-Verse LLC and its divisions: Dreadfracture Comics, Dreadfracture Films, Omega Sound Authority, FracturePedia, and OIS Core Emerald." />
-    <meta name="keywords" content="Fracture-Verse LLC, Legal Manual, Compliance Policy, Montana LLC, Corporate Governance, Dreadfracture Comics, Dreadfracture Films, Omega Sound Authority, FracturePedia, OIS Core Emerald, ADA Compliance, MCDPA" />
+    <meta name="description" content="Official Master Corporate Legal, IP Holding, and Division Compliance Manual for Fracture-Verse LLC and its divisions: Dreadfracture Comics, Dreadfracture Films, Omega Sound Authority, FracturePedia, OIS Core Emerald, and Returns/Subscriptions." />
+    <meta name="keywords" content="Fracture-Verse LLC, Legal Manual, Compliance Policy, Montana LLC, Corporate Governance, Dreadfracture Comics, Dreadfracture Films, Omega Sound Authority, FracturePedia, OIS Core Emerald, ADA Compliance, MCDPA, Subscriptions, Returns Policy" />
+    <meta name="author" content="Fracture-Verse LLC Legal & Compliance Office" />
+    <meta name="publisher" content="Fracture-Verse LLC" />
+    <meta name="copyright" content="Copyright (c) 2026 Fracture-Verse LLC. All rights reserved." />
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="geo.region" content="US-MT" />
+    <meta name="geo.placename" content="Montana, USA" />
     <link rel="canonical" href="https://fracture-verse.com/legal-manual" />
+    <link rel="alternate" hreflang="en-US" href="https://fracture-verse.com/legal-manual" />
+    <link rel="alternate" hreflang="x-default" href="https://fracture-verse.com/legal-manual" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -42,32 +62,45 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    <!-- Schema.org Structured Data for SEO -->
+    <!-- Schema.org Structured Data for Search Engine Indexing (Google, Safari, Bing, DuckDuckGo) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "GovernmentPermit",
-      "name": "Fracture-Verse LLC Master Corporate Legal & Compliance Manual",
-      "organization": {
-        "@type": "Corporation",
-        "name": "Fracture-Verse LLC",
-        "legalName": "Fracture-Verse LLC",
-        "address": {
-          "@type": "PostalAddress",
-          "addressRegion": "Montana",
-          "addressCountry": "USA"
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://fracture-verse.com/legal-manual/#website",
+          "url": "https://fracture-verse.com/legal-manual",
+          "name": "Fracture-Verse LLC Legal Manual",
+          "description": "Official Master Corporate Legal & Compliance Manual for Fracture-Verse LLC",
+          "publisher": {
+            "@type": "Corporation",
+            "name": "Fracture-Verse LLC",
+            "legalName": "Fracture-Verse LLC",
+            "address": {
+              "@type": "PostalAddress",
+              "addressRegion": "Montana",
+              "addressCountry": "US"
+            }
+          }
         },
-        "brand": [
-          "Dreadfracture Comics",
-          "Dreadfracture Films",
-          "Omega Sound Authority",
-          "FracturePedia",
-          "OIS Core Emerald"
-        ]
-      },
-      "datePublished": "2026-08-09",
-      "inLanguage": "en-US",
-      "governingLaw": "Montana Limited Liability Company Act (Mont. Code Ann. § 35-8)"
+        {
+          "@type": "ItemList",
+          "name": "Fracture-Verse LLC Corporate Policies Directory",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Article I: Work-Made-For-Hire & IP Vesting", "url": "https://fracture-verse.com/legal-manual#article-1" },
+            { "@type": "ListItem", "position": 2, "name": "Article II: Dreadfracture Comics Governance", "url": "https://fracture-verse.com/legal-manual#article-2" },
+            { "@type": "ListItem", "position": 3, "name": "Article III: Dreadfracture Films Rights", "url": "https://fracture-verse.com/legal-manual#article-3" },
+            { "@type": "ListItem", "position": 4, "name": "Article IV: Omega Sound Authority Licensing", "url": "https://fracture-verse.com/legal-manual#article-4" },
+            { "@type": "ListItem", "position": 5, "name": "Article V: FracturePedia Wiki Terms", "url": "https://fracture-verse.com/legal-manual#article-5" },
+            { "@type": "ListItem", "position": 6, "name": "Article VI: OIS Core Emerald Platform", "url": "https://fracture-verse.com/legal-manual#article-6" },
+            { "@type": "ListItem", "position": 7, "name": "Article VII: ADA Title III Accessibility", "url": "https://fracture-verse.com/legal-manual#article-7" },
+            { "@type": "ListItem", "position": 8, "name": "Article VIII: MCDPA Cookie & Privacy Standards", "url": "https://fracture-verse.com/legal-manual#article-8" },
+            { "@type": "ListItem", "position": 9, "name": "Article IX: Enforcement & Dispute Resolution", "url": "https://fracture-verse.com/legal-manual#article-9" },
+            { "@type": "ListItem", "position": 10, "name": "Article X: Commerce, Subscriptions & Returns", "url": "https://fracture-verse.com/legal-manual#article-10" }
+          ]
+        }
+      ]
     }
     </script>
   </head>

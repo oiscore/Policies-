@@ -1,0 +1,14 @@
+# Robots.txt for Fracture-Verse LLC Legal & Compliance Portal
+User-agent: *
+Allow: /
+Allow: /sitemap.xml
+Allow: /robots.txt
+Allow: /api/seo/metadata
+Allow: /legal-manual
+
+# Crawl-delay for search engine polite indexing
+Crawl-delay: 1
+
+# Host & Sitemap Location
+Host: https://fracture-verse.com
+Sitemap: https://fracture-verse.com/sitemap.xml

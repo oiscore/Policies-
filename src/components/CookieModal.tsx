@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Cookie, X, Check, ShieldCheck, Radio } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Cookie, X, Check, ShieldCheck, Radio, Laptop, MapPinOff } from 'lucide-react';
 import { CookiePreferences } from '../types';
 
 interface CookieModalProps {
@@ -9,6 +9,19 @@ interface CookieModalProps {
   onSavePreferences: (prefs: CookiePreferences) => void;
 }
 
+const getDeviceId = (): string => {
+  try {
+    let id = localStorage.getItem('fv_device_id');
+    if (!id) {
+      id = 'DEV-' + Math.random().toString(36).substring(2, 9).toUpperCase();
+      localStorage.setItem('fv_device_id', id);
+    }
+    return id;
+  } catch (e) {
+    return 'DEV-LOCAL';
+  }
+};
+
 export const CookieModal: React.FC<CookieModalProps> = ({
   isOpen,
   onClose,
@@ -17,6 +30,11 @@ export const CookieModal: React.FC<CookieModalProps> = ({
 }) => {
   const [prefs, setPrefs] = useState<CookiePreferences>(preferences);
   const [savedMessage, setSavedMessage] = useState(false);
+  const [deviceId, setDeviceId] = useState<string>('');
+
+  useEffect(() => {
+    setDeviceId(getDeviceId());
+  }, []);
 
   if (!isOpen) return null;
 
@@ -85,6 +103,23 @@ export const CookieModal: React.FC<CookieModalProps> = ({
           <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-600 text-white font-bold">
             MCDPA Enforced
           </span>
+        </div>
+
+        {/* Device-Bound Privacy & Location Notice */}
+        <div className="px-5 py-3 bg-slate-50 border-b border-slate-200/80 space-y-1 text-xs text-slate-600 font-sans">
+          <div className="flex items-center justify-between font-semibold text-slate-800">
+            <div className="flex items-center gap-1.5">
+              <Laptop className="w-4 h-4 text-slate-600" />
+              <span>Device-Bound Storage ({deviceId})</span>
+            </div>
+            <div className="flex items-center gap-1 text-[11px] text-emerald-700 font-medium">
+              <MapPinOff className="w-3.5 h-3.5 text-emerald-600" />
+              <span>No Location Tracking</span>
+            </div>
+          </div>
+          <p className="text-[11px] leading-relaxed text-slate-500">
+            Cookie preferences are remembered individually on your specific device. Personal GPS or location data is <strong className="text-slate-700">never detected or stored</strong> — only local device options are preserved.
+          </p>
         </div>
 
         {/* Preferences Tiers */}

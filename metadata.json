@@ -1,6 +1,6 @@
 {
-  "name": "Fracture-Verse LLC - Master Legal & Compliance Portal",
-  "description": "Official corporate legal manual, division compliance policies, searchable database, PDF generator, and SEO-optimized compliance platform for Fracture-Verse LLC.",
+  "name": "CertiVerify - Official Certificate Verification Portal",
+  "description": "Authoritative corporate certificate verification platform with cryptographically signed verification IDs, database status lookup, revocation management, rate limiting, and security compliance.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

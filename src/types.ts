@@ -1,3 +1,54 @@
+export type CertificateStatus = 'VALID' | 'REVOKED' | 'EXPIRED' | 'NOT_FOUND' | 'RATE_LIMITED';
+
+export interface RevocationDetails {
+  revokedAt: string;
+  revokedBy: string;
+  reason: string;
+}
+
+export interface CertificateRecord {
+  id: string;
+  holderName: string;
+  certificateTitle: string;
+  issuer: string;
+  issueDate: string;
+  expirationDate: string;
+  status: 'VALID' | 'REVOKED' | 'EXPIRED';
+  category: string;
+  revocationDetails?: RevocationDetails;
+  signatureHash: string;
+  publicKeyThumbprint: string;
+  verificationUrl: string;
+}
+
+export interface VerificationResult {
+  success: boolean;
+  status: CertificateStatus;
+  certificate?: CertificateRecord;
+  verificationId?: string;
+  message?: string;
+  verificationResult?: {
+    authoritativeDatabaseMatch: boolean;
+    digitalSignatureValid: boolean;
+    cryptographicAlgorithm: string;
+    publicKeyThumbprint: string;
+    verifiedAt: string;
+    verifiedByNode: string;
+  };
+  governingAuthority?: string;
+  error?: string;
+  retryAfterSeconds?: number;
+}
+
+export interface AuditLogEvent {
+  timestamp: string;
+  verificationId: string;
+  resultStatus: string;
+  clientIpHash: string;
+  userAgentSnippet: string;
+  signatureValid: boolean;
+}
+
 export interface TableRow {
   tier: string;
   function: string;
@@ -36,7 +87,8 @@ export type DivisionCategory =
   | 'OIS_CORE'
   | 'ACCESSIBILITY'
   | 'COOKIE_PRIVACY'
-  | 'ENFORCEMENT';
+  | 'ENFORCEMENT'
+  | 'COMMERCE_RETURNS';
 
 export interface SearchFilter {
   query: string;
@@ -60,3 +112,4 @@ export interface AccessibilityReport {
   barrierDescription: string;
   preferredFormat: string;
 }
+

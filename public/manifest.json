@@ -1,21 +1,48 @@
 {
-  "short_name": "Fracturepedia",
-  "name": "Fracturepedia Official Wiki",
+  "short_name": "FV Legal App",
+  "name": "Fracture-Verse Legal Manual & Compliance App",
+  "description": "Master Corporate Legal, Division Policies & Compliance Application for Fracture-Verse LLC",
   "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "window-controls-overlay", "minimal-ui"],
   "background_color": "#0d0e15",
   "theme_color": "#0d0e15",
-  "display": "standalone",
   "orientation": "any",
+  "lang": "en-US",
+  "dir": "ltr",
+  "categories": ["business", "legal", "productivity", "utilities"],
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "/logo.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/logo.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "Search Legal Manual",
+      "short_name": "Search",
+      "description": "Quick search across all corporate policies",
+      "url": "/#search",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Division Policies",
+      "short_name": "Divisions",
+      "description": "Explore division-specific policies",
+      "url": "/#main-content-grid",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
 }

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   X,
   Download,
-  Printer,
   Bookmark,
   Link,
   Check,
@@ -58,17 +57,66 @@ export const PolicyReaderModal: React.FC<PolicyReaderModalProps> = ({
   const prevArticle = currentIndex > 0 ? articles[currentIndex - 1] : null;
   const nextArticle = currentIndex < articles.length - 1 ? articles[currentIndex + 1] : null;
 
-  const handleCopyText = () => {
+  const handleCopyText = async () => {
     const fullText = `${article.articleNumber}: ${article.title}\n\nSummary:\n${article.summary}\n\n` +
       article.sections.map(s => `[${s.sectionNumber}] ${s.title}\n${s.content || ''}\n${s.bullets?.map(b => `• ${b}`).join('\n') || ''}`).join('\n\n');
-    navigator.clipboard.writeText(fullText);
+    
+    let success = false;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(fullText);
+        success = true;
+      } catch (e) {
+        success = false;
+      }
+    }
+    if (!success) {
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = fullText;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      } catch (e) {
+        // silent fallback
+      }
+    }
     setCopiedText(true);
     setTimeout(() => setCopiedText(false), 2000);
   };
 
-  const handleCopyLink = () => {
+  const handleCopyLink = async () => {
     const url = `${window.location.origin}${window.location.pathname}#${article.id}`;
-    navigator.clipboard.writeText(url);
+    let success = false;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(url);
+        success = true;
+      } catch (e) {
+        success = false;
+      }
+    }
+    if (!success) {
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = url;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      } catch (e) {
+        // silent fallback
+      }
+    }
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };
@@ -328,31 +376,6 @@ export const PolicyReaderModal: React.FC<PolicyReaderModalProps> = ({
                   <span>Copy Policy Text</span>
                 </>
               )}
-            </button>
-
-            <button
-              onClick={handleCopyLink}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:border-slate-300 text-xs font-semibold transition-all shadow-2xs"
-            >
-              {copiedLink ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Link Copied</span>
-                </>
-              ) : (
-                <>
-                  <Link className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Copy Link</span>
-                </>
-              )}
-            </button>
-
-            <button
-              onClick={() => window.print()}
-              className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 transition-colors"
-              title="Print document"
-            >
-              <Printer className="w-4 h-4" />
             </button>
           </div>
 

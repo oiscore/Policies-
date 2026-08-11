@@ -17,39 +17,20 @@ export const HeroBanner: React.FC<HeroBannerProps> = () => {
       <div className="relative z-10 space-y-6 max-w-2xl">
         <div className="space-y-2">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight">
-            Welcome to the Master Corporate Legal & Compliance Manual
+            Welcome to Fracture Verse Legal & Compliance
           </h1>
           <p className="text-sm sm:text-base text-blue-100 font-normal leading-relaxed">
-            Your central hub for all corporate policies, governance documents, and compliance guidelines.
+            We're glad you're here. Find company policies, division guidelines, and legal standards all in one easy place.
           </p>
-        </div>
 
-        {/* Hero Banner Stats Bar */}
-        <div className="flex items-center gap-6 sm:gap-10 pt-2 border-t border-blue-500/40">
-          <div className="flex items-center gap-3">
-            <div className="text-white opacity-90">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
+          <div className="bg-blue-700/80 border border-blue-400/40 rounded-xl p-3 text-xs text-blue-100 flex items-start gap-2.5 shadow-inner">
+            <span className="inline-block w-2 h-2 rounded-full bg-amber-300 mt-1 shrink-0 animate-pulse" />
             <div>
-              <div className="text-lg font-bold font-mono leading-none">9</div>
-              <div className="text-[11px] text-blue-200 mt-0.5">Articles</div>
+              <p className="font-semibold text-white">Notice of Policy Updates & System Governance:</p>
+              <p className="mt-0.5 opacity-90">
+                All policies and manuals herein are official live corporate documents and are subject to change or modification at any time without prior notice.
+              </p>
             </div>
-          </div>
-
-          <div className="h-8 w-px bg-blue-500/40" />
-
-          <div>
-            <div className="text-lg font-bold font-mono leading-none">24</div>
-            <div className="text-[11px] text-blue-200 mt-0.5">Sections</div>
-          </div>
-
-          <div className="h-8 w-px bg-blue-500/40" />
-
-          <div>
-            <div className="text-lg font-bold font-mono leading-none">100%</div>
-            <div className="text-[11px] text-blue-200 mt-0.5">Compliance</div>
           </div>
         </div>
       </div>

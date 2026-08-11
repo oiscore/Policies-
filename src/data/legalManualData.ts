@@ -2,6 +2,7 @@ import { Article } from '../types';
 
 export const MANUAL_METADATA = {
   companyName: 'FRACTURE-VERSE LLC',
+  owner: 'Bruce Vacini CEO and founder',
   documentTitle: 'Master Corporate Legal & Compliance Manual',
   effectiveDate: 'Aug 9, 2025',
   parentEntity: 'Fracture-Verse LLC',
@@ -201,7 +202,7 @@ export const LEGAL_ARTICLES: Article[] = [
         sectionNumber: 'Section 5.02',
         title: 'Automated Scraping & Data Protection',
         content:
-          'Automated web scraping, web crawling, data mining, or content harvesting from FracturePedia for third-party databases, commercial archives, or external AI model training without express written approval from Fracture-Verse LLC is strictly forbidden. Violations constitute actionable breach of terms and computer trespass under applicable state and federal statutes.',
+          'Automated web scraping, web crawling, data mining, or content harvesting from FracturePedia for third-party databases, commercial archives, or external automated model training without express written approval from Fracture-Verse LLC is strictly forbidden. Violations constitute actionable breach of terms and computer trespass under applicable state and federal statutes.',
       },
     ],
   },
@@ -375,6 +376,57 @@ export const LEGAL_ARTICLES: Article[] = [
         title: 'Severability',
         content:
           'If any article, section, or clause of this legal manual is ruled invalid, illegal, or unenforceable by a court of competent jurisdiction, such ruling shall not impair or invalidate the remaining articles, sections, or clauses, which shall remain in full legal force and effect.',
+      },
+    ],
+  },
+  {
+    id: 'article-10',
+    articleNumber: 'ARTICLE X',
+    title: 'Subscriptions, Returns & Shipping Policy',
+    shortTitle: 'Subscriptions & Shipping',
+    category: 'Commercial Returns & Logistics',
+    division: 'COMMERCE_RETURNS',
+    iconName: 'ShoppingBag',
+    summary: 'Master corporate return terms for OIS Core Emerald subscriptions, Dreadfracture digital/physical goods, and shipping fee disclosures.',
+    sections: [
+      {
+        id: 'sec-10-01',
+        sectionNumber: 'Section 10.01',
+        title: 'OIS Core Emerald Subscription Service Return Policy',
+        content:
+          'All software-as-a-service (SaaS) plans, recurring digital memberships, and cloud engine subscriptions for OIS Core Emerald services are governed by a strict 14-day refund window from the date of transaction or initial plan activation.',
+        bullets: [
+          '14-Day Money-Back Period: Subscribers may request a full refund within fourteen (14) calendar days of initial subscription purchase or cycle renewal. Refund requests initiated within this 14-day window will be processed back to the original payment method.',
+          'Post-14-Day Cancellation: Cancellation requests received after the 14-day period will terminate automatic renewal for upcoming billing cycles. Access will remain active through the end of the paid cycle, but paid subscription fees become strictly non-refundable.',
+          'Enterprise Digital Standards: Service level availability and account subscription management adhere strictly to enterprise digital commercial compliance without exception.',
+        ],
+        statutes: ['Mont. Code Ann. § 30-14-101 et seq.'],
+      },
+      {
+        id: 'sec-10-02',
+        sectionNumber: 'Section 10.02',
+        title: 'Dreadfracture Comics & Media Return Standards (Digital & Physical)',
+        content:
+          'Commercial transactions across Dreadfracture Comics, graphic novels, digital releases, and physical merchandise are classified under two distinct operational policy tiers:',
+        bullets: [
+          'Digital Downloads & Free Downloads (No Return Policy): All digital products—including PDF comic issues, CBZ e-books, downloadable art assets, wallpaper packs, audio files, and free promotional downloads—carry a strict NO RETURN and NO REFUND policy once accessed, streamed, or downloaded.',
+          'Physical Books & Merchandise (7-Day Return Window): Physical printed comic books, trade paperbacks, graphic novels, apparel, and physical collectibles are eligible for return within seven (7) calendar days from the date of original purchase.',
+          'Physical Item Conditions: To qualify for a physical product return, items must be strictly unopened, sealed in original factory packaging, or received in a carrier-damaged state upon initial delivery.',
+        ],
+        statutes: ['Uniform Commercial Code § 2-314'],
+      },
+      {
+        id: 'sec-10-03',
+        sectionNumber: 'Section 10.03',
+        title: 'Master Shipping & Return Freight Logistics Policy',
+        content:
+          'In accordance with standard enterprise retail and fulfillment compliance rules:',
+        bullets: [
+          'Initial Shipping Fees: Customers are 100% responsible for all initial shipping, handling, and logistics charges associated with product orders. Initial shipping costs are strictly non-refundable.',
+          'Return Freight Costs: For all approved physical returns under the 7-day policy window, customers bear sole financial responsibility for return shipping costs, carrier tracking fees, and customs/import duties.',
+          'Damaged Shipment Authorization: Items damaged in transit require written notification and clear photographic proof submitted to customer support within seven (7) days of purchase date to obtain a Return Merchandise Authorization (RMA) prior to shipping return packages.',
+        ],
+        statutes: ['Mont. Code Ann. § 30-14-101'],
       },
     ],
   },

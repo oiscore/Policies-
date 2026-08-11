@@ -8,13 +8,21 @@
     margin: 0;
     padding: 0;
     overflow-x: hidden;
-    overscroll-behavior: none;
+    overscroll-behavior-y: none;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
+    touch-action: manipulation;
     background-color: #f8fafc;
     color: #0f172a;
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   }
+
+  /* App control UI - Prevent unwanted text selection on buttons and navbars */
+  button, nav, header, [role="button"] {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
 
   /* Executive Heading typography */
   .font-serif-heading {
@@ -74,15 +82,109 @@
   box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.06);
 }
 
-@media print {
-  body {
-    background-color: white !important;
-    color: black !important;
+@keyframes logoEntrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(-2px);
   }
-  .no-print {
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-logo-entrance {
+  animation: logoEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Accessibility Enhancement Classes */
+html.high-contrast {
+  filter: contrast(125%);
+}
+
+html.reduced-motion *,
+html.reduced-motion *::before,
+html.reduced-motion *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+html.focus-highlight *:focus,
+html.focus-highlight *:focus-visible {
+  outline: 3px solid #2563eb !important;
+  outline-offset: 3px !important;
+}
+
+html.legibility-font {
+  letter-spacing: 0.05em !important;
+  word-spacing: 0.1em !important;
+  line-height: 1.8 !important;
+}
+
+@media print {
+  /* Universal Print Formatting */
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+  }
+
+  html,
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+    line-height: 1.5 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    height: auto !important;
+    width: 100% !important;
+  }
+
+  #root,
+  main {
+    min-height: auto !important;
+    background: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Hide interactive elements and overlays during print */
+  .no-print,
+  button:not(.print-include),
+  header,
+  footer,
+  aside,
+  #saphiraball-orb-trigger,
+  .cookie-banner {
     display: none !important;
   }
+
   .print-only {
     display: block !important;
   }
+
+  /* Optimize articles and cards for printed documents */
+  .blueprint-card,
+  .printable-card {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 6px !important;
+    padding: 12pt !important;
+    margin-bottom: 12pt !important;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+    color: #000000 !important;
+  }
 }
+
