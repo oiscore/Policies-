@@ -1,13 +1,21 @@
 @import "tailwindcss";
 
+/* Universal Reset & Viewport Fix for Android & iOS */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 @layer base {
-  /* Base styles matching the modern light corporate blueprint layout */
+  /* Fix mobile container heights across browsers */
   html, body {
-    width: 100%;
-    height: 100%;
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic Viewport Height for modern mobile browsers */
+    overflow-x: hidden; /* Prevents unwanted horizontal scrolling */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     overscroll-behavior-y: none;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
@@ -17,12 +25,46 @@
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   }
 
+  /* Ensure flex/grid parents do not clip headers */
+  .app-container, #root, main {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* Header/Headliner Section Fix */
+  header, .headliner, .hero-section {
+    width: 100%;
+    box-sizing: border-box;
+    
+    /* Dynamically adds padding for camera cutouts, notches, and Android status bars */
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-left: max(16px, env(safe-area-inset-left));
+    
+    /* Prevents hard height clipping */
+    height: auto;
+    min-height: fit-content;
+    overflow: visible;
+  }
+
+  .fixed-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    padding-top: env(safe-area-inset-top);
+    /* Ensures background extends behind native status bar */
+    background-color: inherit; 
+  }
+
   /* App control UI - Prevent unwanted text selection on buttons and navbars */
   button, nav, header, [role="button"] {
     user-select: none;
     -webkit-user-select: none;
   }
-
 
   /* Executive Heading typography */
   .font-serif-heading {
@@ -32,16 +74,6 @@
 
   .font-mono-code {
     font-family: 'JetBrains Mono', monospace;
-  }
-
-  /* Dynamic Viewport Height for accurate heights across devices */
-  #root {
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.05) 0%, rgba(248, 250, 252, 0) 60%),
-                radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.04) 0%, rgba(248, 250, 252, 0) 50%),
-                #f8fafc;
   }
 
   /* Safe areas for mobile & notch devices */
