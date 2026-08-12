@@ -139,11 +139,43 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
     startY: 0,
   });
 
+  // Global window pointer listeners while dragging for 100% glitch-free smooth movement
+  useEffect(() => {
+    if (!isPopupDragging) return;
+
+    const handleWindowPointerMove = (e: PointerEvent) => {
+      const deltaX = e.clientX - popupDragStartRef.current.mouseX;
+      const deltaY = e.clientY - popupDragStartRef.current.mouseY;
+
+      const popWidth = Math.min(320, window.innerWidth - 24);
+      const popHeight = 420;
+
+      const newX = Math.max(8, Math.min(popupDragStartRef.current.startX + deltaX, window.innerWidth - popWidth - 8));
+      const newY = Math.max(8, Math.min(popupDragStartRef.current.startY + deltaY, window.innerHeight - popHeight - 8));
+
+      setPopupPosition({ x: newX, y: newY });
+    };
+
+    const handleWindowPointerUp = () => {
+      setIsPopupDragging(false);
+    };
+
+    window.addEventListener('pointermove', handleWindowPointerMove, { passive: true });
+    window.addEventListener('pointerup', handleWindowPointerUp);
+    window.addEventListener('pointercancel', handleWindowPointerUp);
+
+    return () => {
+      window.removeEventListener('pointermove', handleWindowPointerMove);
+      window.removeEventListener('pointerup', handleWindowPointerUp);
+      window.removeEventListener('pointercancel', handleWindowPointerUp);
+    };
+  }, [isPopupDragging]);
+
   // Whenever popup opens, initialize default position near orb or clamped safely
   useEffect(() => {
     if (isOpen && !popupPosition) {
       const popWidth = Math.min(320, window.innerWidth - 24);
-      const popHeight = 400;
+      const popHeight = 420;
       let initX = position.x > window.innerWidth / 2 ? position.x - popWidth + 30 : position.x - 10;
       let initY = position.y > window.innerHeight / 2 ? position.y - popHeight - 10 : position.y + 70;
 
@@ -158,8 +190,9 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
     if ((e.target as HTMLElement).closest('button, input, a, textarea')) return;
 
     const popWidth = Math.min(320, window.innerWidth - 24);
+    const popHeight = 420;
     const currentX = popupPosition?.x ?? Math.max(12, (window.innerWidth - popWidth) / 2);
-    const currentY = popupPosition?.y ?? Math.max(12, (window.innerHeight - 400) / 2);
+    const currentY = popupPosition?.y ?? Math.max(12, (window.innerHeight - popHeight) / 2);
 
     popupDragStartRef.current = {
       mouseX: e.clientX,
@@ -168,39 +201,11 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
       startY: currentY,
     };
     setIsPopupDragging(true);
-
-    const target = e.currentTarget as HTMLElement;
-    target.setPointerCapture(e.pointerId);
-  };
-
-  const handlePopupPointerMove = (e: React.PointerEvent) => {
-    if (!isPopupDragging) return;
-
-    const deltaX = e.clientX - popupDragStartRef.current.mouseX;
-    const deltaY = e.clientY - popupDragStartRef.current.mouseY;
-
-    const popWidth = Math.min(320, window.innerWidth - 24);
-    const popHeight = 400;
-
-    const newX = Math.max(8, Math.min(popupDragStartRef.current.startX + deltaX, window.innerWidth - popWidth - 8));
-    const newY = Math.max(8, Math.min(popupDragStartRef.current.startY + deltaY, window.innerHeight - popHeight - 8));
-
-    setPopupPosition({ x: newX, y: newY });
-  };
-
-  const handlePopupPointerUp = (e: React.PointerEvent) => {
-    if (!isPopupDragging) return;
-    setIsPopupDragging(false);
-
-    const target = e.currentTarget as HTMLElement;
-    if (target.hasPointerCapture(e.pointerId)) {
-      target.releasePointerCapture(e.pointerId);
-    }
   };
 
   const snapPopupTo = (target: 'top' | 'center' | 'bottom') => {
     const popWidth = Math.min(320, window.innerWidth - 24);
-    const popHeight = 400;
+    const popHeight = 420;
     const centerX = Math.max(12, (window.innerWidth - popWidth) / 2);
 
     if (target === 'top') {
@@ -959,12 +964,17 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
 
   // Determine popover position on screen
   const currentPopWidth = Math.min(320, typeof window !== 'undefined' ? window.innerWidth - 24 : 320);
+  const currentX = popupPosition ? popupPosition.x : Math.max(12, (window.innerWidth - currentPopWidth) / 2);
+  const currentY = popupPosition ? popupPosition.y : Math.max(12, (window.innerHeight - 420) / 2);
+
   const popoverStyle: React.CSSProperties = {
     position: 'fixed',
     zIndex: 9999,
     touchAction: 'none',
-    left: popupPosition ? `${popupPosition.x}px` : `${Math.max(12, (window.innerWidth - currentPopWidth) / 2)}px`,
-    top: popupPosition ? `${popupPosition.y}px` : `${Math.max(12, (window.innerHeight - 400) / 2)}px`,
+    left: `${currentX}px`,
+    top: `${currentY}px`,
+    willChange: isPopupDragging ? 'left, top' : 'auto',
+    transition: isPopupDragging ? 'none' : 'left 0.2s cubic-bezier(0.16, 1, 0.3, 1), top 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
   };
 
   const isRightHalf = position.x > window.innerWidth / 2;
@@ -1136,9 +1146,9 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
           {/* Draggable Header Bar */}
           <div
             onPointerDown={handlePopupPointerDown}
-            onPointerMove={handlePopupPointerMove}
-            onPointerUp={handlePopupPointerUp}
-            className="flex flex-col gap-2 p-2.5 bg-slate-900 border-b border-slate-800 cursor-grab active:cursor-grabbing select-none"
+            className={`flex flex-col gap-2 p-2.5 bg-slate-900 border-b border-slate-800 select-none ${
+              isPopupDragging ? 'cursor-grabbing' : 'cursor-grab'
+            }`}
             title="Drag window anywhere on screen"
           >
             {/* Top Header Row */}
