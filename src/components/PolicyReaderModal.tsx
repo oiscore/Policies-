@@ -20,6 +20,9 @@ import {
   Accessibility,
   Cookie,
   ShieldAlert,
+  CreditCard,
+  Users,
+  HeartHandshake,
   FileText,
   Copy,
 } from 'lucide-react';
@@ -125,6 +128,10 @@ export const PolicyReaderModal: React.FC<PolicyReaderModalProps> = ({
     switch (division) {
       case 'PARENT_GOVERNANCE':
         return <Building2 className="w-5 h-5 text-indigo-600" />;
+      case 'EMPLOYEE_HANDBOOK':
+        return <Users className="w-5 h-5 text-indigo-600" />;
+      case 'CHILD_SAFETY':
+        return <HeartHandshake className="w-5 h-5 text-rose-600" />;
       case 'COMICS':
         return <BookOpen className="w-5 h-5 text-purple-600" />;
       case 'FILMS':
@@ -141,6 +148,14 @@ export const PolicyReaderModal: React.FC<PolicyReaderModalProps> = ({
         return <Cookie className="w-5 h-5 text-amber-600" />;
       case 'ENFORCEMENT':
         return <ShieldAlert className="w-5 h-5 text-red-600" />;
+      case 'PAYMENTS_CHARGEBACKS':
+        return <CreditCard className="w-5 h-5 text-blue-600" />;
+      case 'LEGAL_DISCLAIMERS':
+        return <ShieldAlert className="w-5 h-5 text-amber-600" />;
+      case 'INTERNATIONAL_SHIPPING':
+        return <Globe className="w-5 h-5 text-indigo-600" />;
+      case 'SHIPPING_DATA_PROTECTION':
+        return <ShieldCheck className="w-5 h-5 text-teal-600" />;
       default:
         return <FileText className="w-5 h-5 text-blue-600" />;
     }
@@ -241,7 +256,11 @@ export const PolicyReaderModal: React.FC<PolicyReaderModalProps> = ({
             <p className="text-xs sm:text-sm text-slate-600 italic leading-relaxed font-sans bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
               {article.summary}
             </p>
-            <div className="flex items-center gap-2 text-[11px] font-mono text-slate-500 pt-0.5">
+            <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono text-slate-500 pt-0.5">
+              <span className="flex items-center gap-1 font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                Effective date : {MANUAL_METADATA.effectiveDate}
+              </span>
+              <span>•</span>
               <span className="flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
                 {MANUAL_METADATA.companyName} Legal Code

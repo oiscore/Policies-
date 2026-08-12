@@ -163,6 +163,26 @@ export const SearchBarModal: React.FC<SearchBarProps> = ({
             Parent IP
           </button>
           <button
+            onClick={() => setSelectedCategory('EMPLOYEE_HANDBOOK')}
+            className={`px-3 py-1 rounded-full transition-all ${
+              selectedCategory === 'EMPLOYEE_HANDBOOK'
+                ? 'bg-blue-600 text-white font-bold shadow-2xs'
+                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            Employee Handbook
+          </button>
+          <button
+            onClick={() => setSelectedCategory('CHILD_SAFETY')}
+            className={`px-3 py-1 rounded-full transition-all ${
+              selectedCategory === 'CHILD_SAFETY'
+                ? 'bg-blue-600 text-white font-bold shadow-2xs'
+                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            Child Safety
+          </button>
+          <button
             onClick={() => setSelectedCategory('COMICS')}
             className={`px-3 py-1 rounded-full transition-all ${
               selectedCategory === 'COMICS'
@@ -183,14 +203,54 @@ export const SearchBarModal: React.FC<SearchBarProps> = ({
             Films
           </button>
           <button
-            onClick={() => setSelectedCategory('OMEGA_SOUND')}
+            onClick={() => setSelectedCategory('SOUND')}
             className={`px-3 py-1 rounded-full transition-all ${
-              selectedCategory === 'OMEGA_SOUND'
+              selectedCategory === 'SOUND'
                 ? 'bg-blue-600 text-white font-bold shadow-2xs'
                 : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
             }`}
           >
             Audio
+          </button>
+          <button
+            onClick={() => setSelectedCategory('PAYMENTS_CHARGEBACKS')}
+            className={`px-3 py-1 rounded-full transition-all ${
+              selectedCategory === 'PAYMENTS_CHARGEBACKS'
+                ? 'bg-blue-600 text-white font-bold shadow-2xs'
+                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            Payments & Chargebacks
+          </button>
+          <button
+            onClick={() => setSelectedCategory('LEGAL_DISCLAIMERS')}
+            className={`px-3 py-1 rounded-full transition-all ${
+              selectedCategory === 'LEGAL_DISCLAIMERS'
+                ? 'bg-blue-600 text-white font-bold shadow-2xs'
+                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            Disclaimers
+          </button>
+          <button
+            onClick={() => setSelectedCategory('INTERNATIONAL_SHIPPING')}
+            className={`px-3 py-1 rounded-full transition-all ${
+              selectedCategory === 'INTERNATIONAL_SHIPPING'
+                ? 'bg-blue-600 text-white font-bold shadow-2xs'
+                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            International Shipping
+          </button>
+          <button
+            onClick={() => setSelectedCategory('SHIPPING_DATA_PROTECTION')}
+            className={`px-3 py-1 rounded-full transition-all ${
+              selectedCategory === 'SHIPPING_DATA_PROTECTION'
+                ? 'bg-blue-600 text-white font-bold shadow-2xs'
+                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            Shipping Data Protection
           </button>
         </div>
 

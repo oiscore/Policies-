@@ -15,6 +15,10 @@ import {
   Cookie,
   Scale,
   ShoppingBag,
+  CreditCard,
+  ShieldAlert,
+  Users,
+  HeartHandshake,
   Copy,
 } from 'lucide-react';
 import { LEGAL_ARTICLES } from '../data/legalManualData';
@@ -93,6 +97,10 @@ export const PolicyLinksModal: React.FC<PolicyLinksModalProps> = ({
     switch (division) {
       case 'PARENT_GOVERNANCE':
         return <Building2 className="w-4 h-4 text-blue-600" />;
+      case 'EMPLOYEE_HANDBOOK':
+        return <Users className="w-4 h-4 text-indigo-600" />;
+      case 'CHILD_SAFETY':
+        return <HeartHandshake className="w-4 h-4 text-rose-600" />;
       case 'COMICS':
         return <BookOpen className="w-4 h-4 text-purple-600" />;
       case 'FILMS':
@@ -111,6 +119,14 @@ export const PolicyLinksModal: React.FC<PolicyLinksModalProps> = ({
         return <Scale className="w-4 h-4 text-slate-700" />;
       case 'COMMERCE_RETURNS':
         return <ShoppingBag className="w-4 h-4 text-emerald-600" />;
+      case 'PAYMENTS_CHARGEBACKS':
+        return <CreditCard className="w-4 h-4 text-blue-600" />;
+      case 'LEGAL_DISCLAIMERS':
+        return <ShieldAlert className="w-4 h-4 text-amber-600" />;
+      case 'INTERNATIONAL_SHIPPING':
+        return <Globe className="w-4 h-4 text-indigo-600" />;
+      case 'SHIPPING_DATA_PROTECTION':
+        return <ShieldCheck className="w-4 h-4 text-teal-600" />;
       default:
         return <ShieldCheck className="w-4 h-4 text-blue-600" />;
     }
@@ -283,7 +299,7 @@ export const PolicyLinksModal: React.FC<PolicyLinksModalProps> = ({
         <div className="bg-slate-50 p-4 px-6 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
           <span className="flex items-center gap-1.5">
             <ShieldCheck className="w-4 h-4 text-blue-600" />
-            <span>100% Validated Working Deep-Links for All 10 Corporate Articles & Sections</span>
+            <span>100% Validated Working Deep-Links for All ${LEGAL_ARTICLES.length} Corporate Articles & Sections</span>
           </span>
           <button
             onClick={onClose}

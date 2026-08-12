@@ -16,9 +16,15 @@ export const HeroBanner: React.FC<HeroBannerProps> = () => {
 
       <div className="relative z-10 space-y-6 max-w-2xl">
         <div className="space-y-2">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight">
-            Welcome to Fracture Verse Legal & Compliance
-          </h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight">
+              Welcome to Fracture Verse LLC Legal & Compliance
+            </h1>
+          </div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-blue-800/90 border border-blue-400/40 text-xs font-bold text-blue-100 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Effective date : August 12th 2026</span>
+          </div>
           <p className="text-sm sm:text-base text-blue-100 font-normal leading-relaxed">
             We're glad you're here. Find company policies, division guidelines, and legal standards all in one easy place.
           </p>

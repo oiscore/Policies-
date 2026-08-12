@@ -17,6 +17,8 @@ import { CertificateVerifier } from './components/CertificateVerifier';
 import { CertificateRegistry } from './components/CertificateRegistry';
 import { AdminVerificationModal } from './components/AdminVerificationModal';
 import { SecurityMandateModal } from './components/SecurityMandateModal';
+import { PolicyAddNotification } from './components/PolicyAddNotification';
+import { AddPolicyModal } from './components/AddPolicyModal';
 
 import { LEGAL_ARTICLES, MANUAL_METADATA } from './data/legalManualData';
 import { Article, DivisionCategory, CookiePreferences } from './types';
@@ -24,6 +26,20 @@ import { generateLegalManualPDF } from './utils/pdfGenerator';
 import { ShieldCheck, X, FileCheck, Lock, Award, Shield } from 'lucide-react';
 
 export default function App() {
+  // Master Articles List (Base + Custom Created Policies)
+  const [articles, setArticles] = useState<Article[]>(() => {
+    try {
+      const savedCustom = localStorage.getItem('fv_custom_articles');
+      if (savedCustom) {
+        const parsed: Article[] = JSON.parse(savedCustom);
+        return [...LEGAL_ARTICLES, ...parsed];
+      }
+    } catch (e) {
+      // ignore
+    }
+    return LEGAL_ARTICLES;
+  });
+
   // Navigation & Division Filter State
   const [selectedDivision, setSelectedDivision] = useState<DivisionCategory>('ALL');
   const [selectedArticleId, setSelectedArticleId] = useState<string>('article-1');
@@ -38,6 +54,170 @@ export default function App() {
   const [isCertVerifierModalOpen, setIsCertVerifierModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isMandateModalOpen, setIsMandateModalOpen] = useState(false);
+  const [isAddPolicyModalOpen, setIsAddPolicyModalOpen] = useState(false);
+
+  // Policy Notifications Queue State (Strictly 1 pop-up at a time)
+  const [seenPolicyIds, setSeenPolicyIds] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem('fv_seen_policy_ids');
+      if (saved) {
+        return new Set(JSON.parse(saved));
+      }
+    } catch (e) {
+      // ignore
+    }
+    // Default seen IDs: base articles 1 through 14, leaving 15 & 16 to trigger initial sequential pop-ups
+    return new Set(
+      Array.from({ length: 14 }, (_, i) => `article-${i + 1}`)
+    );
+  });
+
+  const [notificationQueue, setNotificationQueue] = useState<Article[]>([]);
+
+  // Queue unacknowledged published policies whenever articles or seen set changes
+  useEffect(() => {
+    const publishedUnacknowledged = articles.filter(
+      (art) => art.isPublished !== false && !seenPolicyIds.has(art.id)
+    );
+    if (publishedUnacknowledged.length > 0) {
+      setNotificationQueue((prevQueue) => {
+        const existingQueueIds = new Set(prevQueue.map((a) => a.id));
+        const toAdd = publishedUnacknowledged.filter((a) => !existingQueueIds.has(a.id));
+        return [...prevQueue, ...toAdd];
+      });
+    }
+  }, [articles, seenPolicyIds]);
+
+  // Scheduled Policy Auto-Publisher Ticker (Posts immediately once scheduled date/time arrives)
+  useEffect(() => {
+    const ticker = setInterval(() => {
+      const now = new Date();
+      setArticles((prevArticles) => {
+        let changed = false;
+        const updated = prevArticles.map((art) => {
+          if (art.isPublished === false && art.scheduledPublishDate) {
+            if (new Date(art.scheduledPublishDate) <= now) {
+              changed = true;
+              return { ...art, isPublished: true };
+            }
+          }
+          return art;
+        });
+
+        if (changed) {
+          try {
+            const customOnly = updated.filter(
+              (a) => !LEGAL_ARTICLES.some((base) => base.id === a.id)
+            );
+            localStorage.setItem('fv_custom_articles', JSON.stringify(customOnly));
+          } catch (e) {
+            // ignore
+          }
+
+          // Trigger pop-ups immediately for newly effective scheduled policies
+          const newlyPublished = updated.filter(
+            (art) =>
+              art.isPublished !== false &&
+              prevArticles.find((p) => p.id === art.id)?.isPublished === false
+          );
+          if (newlyPublished.length > 0) {
+            setNotificationQueue((prevQ) => {
+              const existingIds = new Set(prevQ.map((a) => a.id));
+              const toAdd = newlyPublished.filter((a) => !existingIds.has(a.id));
+              return [...prevQ, ...toAdd];
+            });
+            setSelectedArticleId(newlyPublished[0].id);
+          }
+
+          return updated;
+        }
+        return prevArticles;
+      });
+    }, 1000);
+
+    return () => clearInterval(ticker);
+  }, []);
+
+  const handleDismissCurrentNotification = () => {
+    if (notificationQueue.length === 0) return;
+    const currentArt = notificationQueue[0];
+
+    // Mark as seen & save
+    setSeenPolicyIds((prev) => {
+      const next = new Set(prev);
+      next.add(currentArt.id);
+      try {
+        localStorage.setItem('fv_seen_policy_ids', JSON.stringify(Array.from(next)));
+      } catch (e) {
+        // ignore
+      }
+      return next;
+    });
+
+    // Advance queue (removes current, showing next pop-up ONE AT A TIME)
+    setNotificationQueue((prev) => prev.slice(1));
+  };
+
+  const handleAddPolicy = (newArticle: Article) => {
+    setArticles((prev) => {
+      const updated = [...prev, newArticle];
+      try {
+        const customOnly = updated.filter(
+          (a) => !LEGAL_ARTICLES.some((base) => base.id === a.id)
+        );
+        localStorage.setItem('fv_custom_articles', JSON.stringify(customOnly));
+      } catch (e) {
+        // ignore
+      }
+      return updated;
+    });
+
+    // If published immediately, trigger pop-up notification queue right away
+    if (newArticle.isPublished !== false) {
+      setNotificationQueue((prev) => [...prev, newArticle]);
+      setSelectedArticleId(newArticle.id);
+    }
+  };
+
+  const handleUpdatePolicy = (updatedArticle: Article) => {
+    setArticles((prev) => {
+      const updated = prev.map((a) => (a.id === updatedArticle.id ? updatedArticle : a));
+      try {
+        const customOnly = updated.filter(
+          (a) => !LEGAL_ARTICLES.some((base) => base.id === a.id)
+        );
+        localStorage.setItem('fv_custom_articles', JSON.stringify(customOnly));
+      } catch (e) {
+        // ignore
+      }
+      return updated;
+    });
+
+    if (updatedArticle.isPublished !== false) {
+      setNotificationQueue((prev) => [...prev.filter((a) => a.id !== updatedArticle.id), updatedArticle]);
+      setSelectedArticleId(updatedArticle.id);
+    }
+  };
+
+  const handleDeletePolicy = (articleId: string) => {
+    setArticles((prev) => {
+      const updated = prev.filter((a) => a.id !== articleId);
+      try {
+        const customOnly = updated.filter(
+          (a) => !LEGAL_ARTICLES.some((base) => base.id === a.id)
+        );
+        localStorage.setItem('fv_custom_articles', JSON.stringify(customOnly));
+      } catch (e) {
+        // ignore
+      }
+      return updated;
+    });
+
+    setNotificationQueue((prev) => prev.filter((a) => a.id !== articleId));
+    if (selectedArticleId === articleId) {
+      setSelectedArticleId(LEGAL_ARTICLES[0].id);
+    }
+  };
 
   // Search & Bookmarks State
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,19 +233,19 @@ export default function App() {
 
   // Saphiraball Home Base State & Egress Cycle
   const [isSaphiraballInHome, setIsSaphiraballInHome] = useState<boolean>(false);
-  const [secondsUntilNextCheck, setSecondsUntilNextCheck] = useState<number>(60);
+  const [secondsUntilNextCheck, setSecondsUntilNextCheck] = useState<number>(120);
   const [isSaphiraballOrbOpen, setIsSaphiraballOrbOpen] = useState<boolean>(false);
   const [showSaphiraballSpeechBubble, setShowSaphiraballSpeechBubble] = useState<boolean>(true);
 
-  // 1-minute (60 seconds) timer: Saphiraball comes out of his home every 1 minute to ask if user needs help!
+  // 2-minute (120 seconds) timer: Each time Saphiraball comes out of his home, the timer increases to 2 minutes!
   useEffect(() => {
     const timer = setInterval(() => {
       setSecondsUntilNextCheck((prev) => {
         if (prev <= 1) {
-          // 1 minute elapsed! Saphiraball comes out of his home onto the screen and asks if user needs help
+          // 2 minutes elapsed! Saphiraball comes out of his home onto the screen
           setIsSaphiraballInHome(false);
           setShowSaphiraballSpeechBubble(true);
-          return 60;
+          return 120;
         }
         return prev - 1;
       });
@@ -77,14 +257,14 @@ export default function App() {
   const handleCallSaphiraballOut = () => {
     setIsSaphiraballInHome(false);
     setShowSaphiraballSpeechBubble(true);
-    setSecondsUntilNextCheck(60);
+    setSecondsUntilNextCheck(120);
   };
 
   const handleSendSaphiraballHome = () => {
     setIsSaphiraballInHome(true);
     setShowSaphiraballSpeechBubble(false);
     setIsSaphiraballOrbOpen(false);
-    setSecondsUntilNextCheck(60);
+    setSecondsUntilNextCheck(120);
   };
 
   // Cookie State
@@ -137,11 +317,11 @@ export default function App() {
   };
 
   const handleDownloadFullPDF = () => {
-    generateLegalManualPDF(LEGAL_ARTICLES);
+    generateLegalManualPDF(articles);
   };
 
   const handleDownloadArticlePDF = (art: Article) => {
-    generateLegalManualPDF(LEGAL_ARTICLES, art);
+    generateLegalManualPDF(articles, art);
   };
 
   const handleNavigateSection = (sectionKey: string) => {
@@ -156,7 +336,7 @@ export default function App() {
   };
 
   const handleSelectSearchResult = (articleId: string, sectionId?: string) => {
-    const foundArt = LEGAL_ARTICLES.find((a) => a.id === articleId);
+    const foundArt = articles.find((a) => a.id === articleId);
     if (foundArt) {
       setActiveArticleForReader(foundArt);
       if (sectionId) {
@@ -177,6 +357,7 @@ export default function App() {
         onOpenCookieModal={() => setIsCookieModalOpen(true)}
         onOpenAccessibilityModal={() => setIsAccessibilityModalOpen(true)}
         onOpenPolicyLinksModal={() => setIsPolicyLinksModalOpen(true)}
+        onOpenAddPolicyModal={() => setIsAddPolicyModalOpen(true)}
         bookmarkedCount={bookmarkedSections.size}
         onToggleBookmarkedOnly={() => setShowBookmarkedOnly(!showBookmarkedOnly)}
         showBookmarkedOnly={showBookmarkedOnly}
@@ -207,13 +388,13 @@ export default function App() {
         <div id="statutes" className="flex flex-col md:flex-row items-start gap-6 lg:gap-8 pt-2">
           {/* Left Sidebar */}
           <Sidebar
-            articles={LEGAL_ARTICLES}
+            articles={articles}
             selectedDivision={selectedDivision}
             onSelectDivision={setSelectedDivision}
             selectedArticleId={selectedArticleId}
             onSelectArticle={(id) => {
               setSelectedArticleId(id);
-              const art = LEGAL_ARTICLES.find((a) => a.id === id);
+              const art = articles.find((a) => a.id === id);
               if (art) setActiveArticleForReader(art);
             }}
             onDownloadFullPDF={handleDownloadFullPDF}
@@ -234,7 +415,7 @@ export default function App() {
           {/* Right Main Articles Display */}
           <div className="flex-1 w-full min-w-0">
             <ArticleView
-              articles={LEGAL_ARTICLES}
+              articles={articles}
               selectedArticleId={selectedArticleId}
               selectedDivision={selectedDivision}
               bookmarkedSections={bookmarkedSections}
@@ -258,11 +439,11 @@ export default function App() {
 
       {/* Saphiraball Interactive Helper Orb */}
       <FloatingAssistantOrb
-        articles={LEGAL_ARTICLES}
+        articles={articles}
         onSelectDivision={(div) => setSelectedDivision(div)}
         onSelectArticle={(id) => {
           setSelectedArticleId(id);
-          const art = LEGAL_ARTICLES.find((a) => a.id === id);
+          const art = articles.find((a) => a.id === id);
           if (art) setActiveArticleForReader(art);
         }}
         onOpenSearch={() => setIsSearchOpen(true)}
@@ -285,7 +466,7 @@ export default function App() {
       <SearchBarModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
-        articles={LEGAL_ARTICLES}
+        articles={articles}
         onSelectResult={handleSelectSearchResult}
       />
 
@@ -294,9 +475,9 @@ export default function App() {
         isOpen={!!activeArticleForReader}
         onClose={() => setActiveArticleForReader(null)}
         article={activeArticleForReader}
-        articles={LEGAL_ARTICLES}
+        articles={articles}
         onSelectArticle={(id) => {
-          const art = LEGAL_ARTICLES.find((a) => a.id === id);
+          const art = articles.find((a) => a.id === id);
           if (art) setActiveArticleForReader(art);
         }}
         bookmarkedSections={bookmarkedSections}
@@ -353,9 +534,9 @@ export default function App() {
       <PolicyLinksModal
         isOpen={isPolicyLinksModalOpen}
         onClose={() => setIsPolicyLinksModalOpen(false)}
-        articles={LEGAL_ARTICLES}
+        articles={articles}
         onSelectArticle={(id) => {
-          const art = LEGAL_ARTICLES.find((a) => a.id === id);
+          const art = articles.find((a) => a.id === id);
           if (art) setActiveArticleForReader(art);
         }}
       />
@@ -365,6 +546,24 @@ export default function App() {
         isOpen={isWelcomeModalOpen}
         onClose={() => setIsWelcomeModalOpen(false)}
         onOpenSearch={() => setIsSearchOpen(true)}
+      />
+
+      {/* Add Policy Modal */}
+      <AddPolicyModal
+        isOpen={isAddPolicyModalOpen}
+        onClose={() => setIsAddPolicyModalOpen(false)}
+        onAddPolicy={handleAddPolicy}
+        onUpdatePolicy={handleUpdatePolicy}
+        onDeletePolicy={handleDeletePolicy}
+        articles={articles}
+        existingArticleCount={articles.length}
+      />
+
+      {/* Single Pop-up Notification for Policy Additions (1 pop-up at a time queue) */}
+      <PolicyAddNotification
+        queue={notificationQueue}
+        onDismissCurrent={handleDismissCurrentNotification}
+        onViewPolicy={(art) => setActiveArticleForReader(art)}
       />
 
       {/* Optional Credential Verifier Modal (Opened via backend service or admin request) */}

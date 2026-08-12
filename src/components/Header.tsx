@@ -12,6 +12,8 @@ import {
   Sun,
   Moon,
   Bot,
+  PlusCircle,
+  Lock,
 } from 'lucide-react';
 import { MANUAL_METADATA } from '../data/legalManualData';
 
@@ -21,6 +23,7 @@ interface HeaderProps {
   onOpenCookieModal: () => void;
   onOpenAccessibilityModal?: () => void;
   onOpenPolicyLinksModal?: () => void;
+  onOpenAddPolicyModal?: () => void;
   bookmarkedCount: number;
   onToggleBookmarkedOnly: () => void;
   showBookmarkedOnly: boolean;
@@ -39,6 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenCookieModal,
   onOpenAccessibilityModal,
   onOpenPolicyLinksModal,
+  onOpenAddPolicyModal,
   bookmarkedCount,
   onToggleBookmarkedOnly,
   showBookmarkedOnly,
@@ -162,6 +166,21 @@ export const Header: React.FC<HeaderProps> = ({
               title="Accessibility & ADA Title III Settings"
             >
               <Accessibility className="w-4 h-4" />
+            </button>
+          )}
+
+          {/* Add / Manage Policy Action Button (Protected by Passcode) */}
+          {onOpenAddPolicyModal && (
+            <button
+              onClick={onOpenAddPolicyModal}
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer relative group border border-blue-400/30"
+              title="Policy Management: Add, Update, or Delete Policies (Passcode Protected)"
+            >
+              <PlusCircle className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Restricted</span>
+              <span className="flex items-center gap-0.5 px-1 py-0.2 rounded bg-amber-400 text-slate-950 font-mono text-[9px] font-extrabold uppercase ml-0.5">
+                <Lock className="w-2.5 h-2.5" />
+              </span>
             </button>
           )}
         </div>

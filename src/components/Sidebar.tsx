@@ -14,6 +14,11 @@ import {
   Cookie,
   Scale,
   ShoppingBag,
+  CreditCard,
+  ShieldAlert,
+  ShieldCheck,
+  Users,
+  HeartHandshake,
   Clock,
   Tag,
   CheckCircle2,
@@ -25,6 +30,7 @@ import {
   Moon,
 } from 'lucide-react';
 import { Article, DivisionCategory } from '../types';
+import { MANUAL_METADATA } from '../data/legalManualData';
 
 interface SidebarProps {
   articles: Article[];
@@ -60,6 +66,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const divisionsList: { key: DivisionCategory; label: string; icon: React.ReactNode }[] = [
     { key: 'PARENT_GOVERNANCE', label: 'Parent Governance & IP', icon: <Shield className="w-3.5 h-3.5 text-blue-600" /> },
+    { key: 'EMPLOYEE_HANDBOOK', label: 'Employee Handbook & Rules', icon: <Users className="w-3.5 h-3.5 text-indigo-600" /> },
+    { key: 'CHILD_SAFETY', label: 'Child Safety & Minor Protection', icon: <HeartHandshake className="w-3.5 h-3.5 text-rose-600" /> },
     { key: 'COMICS', label: 'Dreadfracture Comics', icon: <BookOpen className="w-3.5 h-3.5 text-purple-600" /> },
     { key: 'FILMS', label: 'Dreadfracture Films', icon: <Film className="w-3.5 h-3.5 text-emerald-600" /> },
     { key: 'SOUND', label: 'Omega Sound Authority', icon: <Music className="w-3.5 h-3.5 text-amber-600" /> },
@@ -69,6 +77,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { key: 'COOKIE_PRIVACY', label: 'Cookie & MCDPA Policy', icon: <Cookie className="w-3.5 h-3.5 text-purple-600" /> },
     { key: 'ENFORCEMENT', label: 'Enforcement & Jurisdiction', icon: <Scale className="w-3.5 h-3.5 text-rose-600" /> },
     { key: 'COMMERCE_RETURNS', label: 'Subscriptions & Returns', icon: <ShoppingBag className="w-3.5 h-3.5 text-emerald-600" /> },
+    { key: 'PAYMENTS_CHARGEBACKS', label: 'Payments & Chargebacks', icon: <CreditCard className="w-3.5 h-3.5 text-blue-600" /> },
+    { key: 'LEGAL_DISCLAIMERS', label: 'Corporate Disclaimers', icon: <ShieldAlert className="w-3.5 h-3.5 text-amber-600" /> },
+    { key: 'INTERNATIONAL_SHIPPING', label: 'International Shipping', icon: <Globe className="w-3.5 h-3.5 text-indigo-600" /> },
+    { key: 'SHIPPING_DATA_PROTECTION', label: 'Shipping Data Protection', icon: <ShieldCheck className="w-3.5 h-3.5 text-teal-600" /> },
   ];
 
   return (
@@ -144,15 +156,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <Clock className="w-3.5 h-3.5 text-blue-500" />
               <span>Last Updated</span>
             </span>
-            <span className="font-medium text-slate-700">Aug 9, 2025</span>
+            <span className="font-medium text-slate-700">{MANUAL_METADATA.effectiveDate}</span>
           </div>
 
           <div className="flex items-center justify-between text-slate-600">
             <span className="flex items-center gap-2">
-              <Tag className="w-3.5 h-3.5 text-blue-500" />
+              <Tag className="w-3.5 h-3.5 text-emerald-500" />
               <span>Version</span>
             </span>
-            <span className="font-mono text-slate-700">v1.0</span>
+            <span className="font-mono font-semibold text-emerald-700 bg-emerald-50/80 px-2 py-0.5 rounded border border-emerald-200 text-[11px]">
+              {MANUAL_METADATA.version}
+            </span>
           </div>
         </div>
       </div>

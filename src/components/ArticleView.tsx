@@ -10,6 +10,11 @@ import {
   Cookie,
   Scale,
   ShoppingBag,
+  CreditCard,
+  ShieldAlert,
+  ShieldCheck,
+  Users,
+  HeartHandshake,
   LayoutGrid,
   List,
   ChevronRight,
@@ -20,6 +25,7 @@ import {
   Copy,
 } from 'lucide-react';
 import { DivisionCategory, Article } from '../types';
+import { MANUAL_METADATA } from '../data/legalManualData';
 
 interface ArticleViewProps {
   articles: Article[];
@@ -90,6 +96,18 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
           bg: 'bg-blue-50/80 border-blue-100',
           textColor: 'text-blue-600',
         };
+      case 'EMPLOYEE_HANDBOOK':
+        return {
+          icon: <Users className="w-5 h-5 text-indigo-600" />,
+          bg: 'bg-indigo-50/80 border-indigo-100',
+          textColor: 'text-indigo-600',
+        };
+      case 'CHILD_SAFETY':
+        return {
+          icon: <HeartHandshake className="w-5 h-5 text-rose-600" />,
+          bg: 'bg-rose-50/80 border-rose-100',
+          textColor: 'text-rose-600',
+        };
       case 'COMICS':
         return {
           icon: <BookOpen className="w-5 h-5 text-purple-600" />,
@@ -143,6 +161,30 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
           icon: <ShoppingBag className="w-5 h-5 text-emerald-600" />,
           bg: 'bg-emerald-50/80 border-emerald-100',
           textColor: 'text-emerald-600',
+        };
+      case 'PAYMENTS_CHARGEBACKS':
+        return {
+          icon: <CreditCard className="w-5 h-5 text-blue-600" />,
+          bg: 'bg-blue-50/80 border-blue-100',
+          textColor: 'text-blue-600',
+        };
+      case 'LEGAL_DISCLAIMERS':
+        return {
+          icon: <ShieldAlert className="w-5 h-5 text-amber-600" />,
+          bg: 'bg-amber-50/80 border-amber-100',
+          textColor: 'text-amber-600',
+        };
+      case 'INTERNATIONAL_SHIPPING':
+        return {
+          icon: <Globe className="w-5 h-5 text-indigo-600" />,
+          bg: 'bg-indigo-50/80 border-indigo-100',
+          textColor: 'text-indigo-600',
+        };
+      case 'SHIPPING_DATA_PROTECTION':
+        return {
+          icon: <ShieldCheck className="w-5 h-5 text-teal-600" />,
+          bg: 'bg-teal-50/80 border-teal-100',
+          textColor: 'text-teal-600',
         };
       default:
         return {
@@ -265,6 +307,9 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-extrabold font-mono tracking-wider uppercase px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-100">
                       {article.articleNumber}
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-500 font-semibold">
+                      Effective: {MANUAL_METADATA.effectiveDate}
                     </span>
                   </div>
 
@@ -391,7 +436,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
                       {article.sections.length}
                     </td>
                     <td className="py-2.5 px-3 text-slate-500 text-[11px]">
-                      Aug 9, 2025
+                      {MANUAL_METADATA.effectiveDate}
                     </td>
                     <td className="py-2.5 pl-3 text-right">
                       <span className="inline-block px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-semibold">

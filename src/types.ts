@@ -75,11 +75,15 @@ export interface Article {
   iconName: string;
   summary: string;
   sections: Section[];
+  scheduledPublishDate?: string;
+  isPublished?: boolean;
 }
 
 export type DivisionCategory =
   | 'ALL'
   | 'PARENT_GOVERNANCE'
+  | 'EMPLOYEE_HANDBOOK'
+  | 'CHILD_SAFETY'
   | 'COMICS'
   | 'FILMS'
   | 'SOUND'
@@ -88,7 +92,11 @@ export type DivisionCategory =
   | 'ACCESSIBILITY'
   | 'COOKIE_PRIVACY'
   | 'ENFORCEMENT'
-  | 'COMMERCE_RETURNS';
+  | 'COMMERCE_RETURNS'
+  | 'PAYMENTS_CHARGEBACKS'
+  | 'LEGAL_DISCLAIMERS'
+  | 'INTERNATIONAL_SHIPPING'
+  | 'SHIPPING_DATA_PROTECTION';
 
 export interface SearchFilter {
   query: string;

@@ -136,16 +136,20 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
     {
       id: 'welcome-1',
       sender: 'assistant',
-      text: `Hello! I am Saphiraball, powered by OIS Core Emerald. I am here to help you read our company rules, search articles, check division guidelines, or download the PDF manual. What would you like to find today?`,
+      text: `Hello! I am Saphiraball, powered by OIS Core Emerald. Saphiraball can handle 100% of everything regarding site navigation, legal policies, compliance rules, and manual searches without any human intervention.\n\n⚠️ What Saphiraball cannot do is process refunds or do exchanges or give shipping update information or product information. How can I assist you today?`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
 
   const chatScrollRef = useRef<HTMLDivElement>(null);
 
+  // 2 Minutes (120 seconds) Active Out-Of-Home Countdown Timer State
+  const [outOfHomeSeconds, setOutOfHomeSeconds] = useState<number>(120);
+
   const handleCallOutOfHome = () => {
     if (onCallOutOfHome) onCallOutOfHome();
     setShowSpeechBubble(true);
+    setOutOfHomeSeconds(120);
     setEyeState('happy');
     setTimeout(() => setEyeState('normal'), 2500);
   };
@@ -154,9 +158,10 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
     if (onSendToHome) onSendToHome();
     setIsOpen(false);
     setShowSpeechBubble(false);
+    setOutOfHomeSeconds(120);
   };
 
-  // 2 Minutes Idle Timer: Automatically send Saphiraball inside home after 2 minutes of user inactivity
+  // 2 Minutes Out-of-Home Countdown & Idle Timer Engine
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -168,10 +173,14 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
       return;
     }
 
+    // Reset countdown to 2 minutes whenever Saphiraball comes out of home
+    setOutOfHomeSeconds(120);
+
     const resetIdleTimer = () => {
       if (idleTimerRef.current) {
         clearTimeout(idleTimerRef.current);
       }
+      setOutOfHomeSeconds(120);
       // 2 minutes = 120,000 ms
       idleTimerRef.current = setTimeout(() => {
         handleSendToHome();
@@ -181,7 +190,18 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
     // Start 2-minute countdown when Saphiraball is out of home
     resetIdleTimer();
 
-    // Reset timer on user interaction anywhere on screen
+    // 1-second interval ticker for visual countdown display
+    const countdownInterval = setInterval(() => {
+      setOutOfHomeSeconds((prev) => {
+        if (prev <= 1) {
+          handleSendToHome();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    // Reset timer on user activity anywhere on screen
     const activityEvents = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'click'];
 
     const handleUserActivity = () => {
@@ -193,6 +213,7 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
     });
 
     return () => {
+      clearInterval(countdownInterval);
       if (idleTimerRef.current) {
         clearTimeout(idleTimerRef.current);
         idleTimerRef.current = null;
@@ -351,6 +372,25 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
       'accessibility',
       'cookie',
       'audit',
+      'subscription',
+      'disclaimer',
+      'chargeback',
+      'refund',
+      'shipping',
+      'international',
+      'customs',
+      'duties',
+      'restricted',
+      'transit',
+      'personal data',
+      'data minimization',
+      'shipping address',
+      'no sale',
+      'checkout',
+      'pre-order',
+      'payment',
+      'renewal',
+      'cancellation',
       'help',
       'navigate',
       'where is',
@@ -393,6 +433,40 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
       };
     }
 
+    // 0.1 Explicit Refund, Exchange, Shipping Update, Product Info & Capability Rule
+    if (
+      lower.includes('refund') ||
+      lower.includes('exchange') ||
+      lower.includes('shipping update') ||
+      lower.includes('shipping status') ||
+      lower.includes('tracking') ||
+      lower.includes('product info') ||
+      lower.includes('product information') ||
+      lower.includes('product details') ||
+      lower.includes('can you do') ||
+      lower.includes('what can you') ||
+      lower.includes('capability') ||
+      lower.includes('limitation') ||
+      lower.includes('human intervention')
+    ) {
+      setEyeState('happy');
+      setTimeout(() => setEyeState('normal'), 2000);
+
+      if (lower.includes('refund') || lower.includes('exchange') || lower.includes('shipping') || lower.includes('product')) {
+        return {
+          text: `Saphiraball can handle 100% of everything without any human intervention.\n\n⚠️ What Saphiraball cannot do is process refunds or do exchanges or give shipping update information or product information.\n\nFor official written policies regarding returns and shipping, please consult Article X (Subscriptions, Returns & Shipping Policy) or Article XIII (Payments & Chargebacks).`,
+          actionButton: {
+            label: 'Read Article X (Returns & Shipping)',
+            onClick: () => onSelectArticle('article-10'),
+          },
+        };
+      }
+
+      return {
+        text: `Saphiraball can handle 100% of everything regarding site navigation, legal manual search, policy guidelines, and PDF generation without any human intervention.\n\n⚠️ What Saphiraball cannot do is process refunds or do exchanges or give shipping update information or product information.`,
+      };
+    }
+
     // 1. Check Off-topic guardrail
     if (isOffTopicQuery(userQuery)) {
       setEyeState('alert');
@@ -410,7 +484,7 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
     // 2. Specific Navigational & Functional Requests
     if (lower.includes('download pdf') || lower.includes('pdf report') || lower.includes('export pdf')) {
       return {
-        text: `You can download the full official Fracture-Verse Master Legal & Compliance PDF immediately. Click the button below to generate the comprehensive document with all 6 Articles and 8 Division guidelines.`,
+        text: `You can download the full official Fracture-Verse Master Legal & Compliance PDF immediately. Click the button below to generate the comprehensive document with all ${LEGAL_ARTICLES.length} Articles and division guidelines.`,
         actionButton: {
           label: '📄 Download Master PDF Manual',
           onClick: () => onDownloadPDF(),
@@ -449,6 +523,32 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
     }
 
     // 3. Division specific queries
+    if (lower.includes('child') || lower.includes('minor') || lower.includes('coppa') || lower.includes('csam') || lower.includes('kid') || lower.includes('coogan')) {
+      return {
+        text: `🛡️ **Universal Child Safety, Minor Protection & CSAM Zero-Tolerance Directive (ARTICLE XII)**\nSets world-leading real-life minor protection standards. Features **1-hour mandatory NCMEC CyberTipline reporting** for suspected CSAM (18 U.S.C. § 2258A), strict COPPA & KOSA data privacy (zero targeted ads under 18), mandatory FBI/NSOPW background checks for all personnel, 100% direct line-of-sight parent supervision on film sets, studio tutors, and Coogan trust account compliance.`,
+        actionButton: {
+          label: '🛡️ View Child Safety Directive',
+          onClick: () => {
+            onSelectDivision('CHILD_SAFETY');
+            onNavigateSection('divisions');
+          },
+        },
+      };
+    }
+
+    if (lower.includes('employee') || lower.includes('handbook') || lower.includes('sick leave') || lower.includes('pto') || lower.includes('grievance') || lower.includes('vacation')) {
+      return {
+        text: `📋 **Universal Employee Handbook & Mandatory Rules (ARTICLE XI)**\nGoverns all personnel across Fracture-Verse LLC and operating divisions. Features strict mandatory compliance, an explicit **No Paid Time Off (PTO) / No Paid Sick Leave** policy (unpaid leave only with mandatory 14-day pre-approval), a formal 3-step internal grievance procedure, and strict adherence to all company IP, safety, and security rules.`,
+        actionButton: {
+          label: '📋 Filter Employee Handbook Policies',
+          onClick: () => {
+            onSelectDivision('EMPLOYEE_HANDBOOK');
+            onNavigateSection('divisions');
+          },
+        },
+      };
+    }
+
     if (lower.includes('doj') || lower.includes('department of justice') || lower.includes('corporate governance')) {
       return {
         text: `🏛️ **DOJ Division (Department of Justice & Governance)**\nCovered under ARTICLE I & ARTICLE VI. Regulates parent entity governance (Mont. Code Ann. § 35-8), master intellectual property rights (17 U.S.C.), strict zero-acceptance unsolicited submissions protocols, and OIS Core Emerald software trade secrets.`,
@@ -625,6 +725,18 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
       };
     }
 
+    if (lower.includes('payment') || lower.includes('chargeback') || lower.includes('stripe') || lower.includes('tiktok shop') || lower.includes('transaction') || lower.includes('dispute')) {
+      return {
+        text: `💳 **ARTICLE XIII: Payment, Transaction & Chargeback Policy**\nGoverns Dreadfracture Comics e-commerce payments, Stripe web processing, TikTok Shop storefront checkout, refund delays, evidentiary chargeback dispute defense, fraud prevention, and strict compliance standards under Montana law.`,
+        actionButton: {
+          label: 'Read Article XIII: Payments & Chargebacks',
+          onClick: () => {
+            onSelectArticle('article-13');
+          },
+        },
+      };
+    }
+
     if (lower.includes('unsolicited') || lower.includes('script') || lower.includes('pitch') || lower.includes('idea theft')) {
       return {
         text: `🚫 **Strict Unsolicited Submissions Policy (Section 1.03)**\nFracture-Verse LLC enforces a Zero-Acceptance Rule and Immediate Destruction Protocol. Unsolicited pitches, scripts, or character concepts sent via email or mail are permanently erased/destroyed without being read or reviewed to prevent false claims.`,
@@ -681,7 +793,7 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
 
     // 5. Helpful Fallback
     return {
-      text: `I searched the Fracture Verse Legal & Compliance database for "${userQuery}".\n\nYou can explore our 6 Master Policy Articles, filter by 8 Regulatory Divisions (DOJ, FTC, SEC, EEOC, OSHA, EPA, HIPAA, GDPR), or search specific statutes using Ctrl+K.`,
+      text: `I searched the Fracture Verse Legal & Compliance database for "${userQuery}".\n\nYou can explore our ${LEGAL_ARTICLES.length} Master Policy Articles, filter by ${LEGAL_ARTICLES.length} Regulatory & Brand Divisions, or search specific statutes using Ctrl+K.`,
       actionButton: {
         label: 'View All Policy Articles',
         onClick: () => onNavigateSection('statutes'),
@@ -892,8 +1004,18 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
           </div>
 
           <p className="text-xs text-slate-200 leading-snug font-sans">
-            Need help finding company policies, guidelines, or legal documents?
+            Saphiraball handles 100% of everything automatically without human intervention. (Cannot process refunds, do exchanges, give shipping updates, or product info).
           </p>
+
+          <div className="flex items-center justify-between bg-slate-950/80 px-2.5 py-1 rounded-xl border border-emerald-500/30 text-[10px] font-mono text-emerald-300">
+            <span className="flex items-center gap-1">
+              <Clock className="w-3 h-3 text-amber-400 animate-pulse" />
+              Home Return Timer:
+            </span>
+            <span className="font-bold text-amber-300">
+              {Math.floor(outOfHomeSeconds / 60)}:{String(outOfHomeSeconds % 60).padStart(2, '0')}
+            </span>
+          </div>
 
           <div className="flex items-center gap-1.5 pt-1">
             <button
@@ -945,6 +1067,10 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
                     OIS Core Emerald
                   </span>
                 </h3>
+                <div className="flex items-center gap-1 text-[10px] text-amber-300 font-mono mt-1">
+                  <Clock className="w-2.5 h-2.5 text-amber-400 animate-pulse" />
+                  <span>Home Return Timer: {Math.floor(outOfHomeSeconds / 60)}:{String(outOfHomeSeconds % 60).padStart(2, '0')}</span>
+                </div>
               </div>
             </div>
 
@@ -1025,6 +1151,12 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
 
           {/* Quick Suggestion Chips */}
           <div className="p-2 bg-slate-900/60 border-t border-slate-800/80 overflow-x-auto flex items-center gap-1.5 no-scrollbar">
+            <button
+              onClick={() => handleSend('What can Saphiraball handle?')}
+              className="px-2.5 py-1 bg-emerald-950/90 hover:bg-emerald-900/80 text-emerald-300 text-[10px] font-bold rounded-lg whitespace-nowrap transition-colors flex items-center gap-1 border border-emerald-500/40"
+            >
+              ⚡ Scope & Limitations
+            </button>
             <button
               onClick={() => handleSend('What is DOJ Division?')}
               className="px-2.5 py-1 bg-slate-800/90 hover:bg-slate-700 text-slate-300 text-[10px] rounded-lg whitespace-nowrap transition-colors flex items-center gap-1 border border-slate-700/50"
