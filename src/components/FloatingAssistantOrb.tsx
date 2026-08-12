@@ -129,6 +129,89 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
   // Eye Animation State: 'normal' | 'blink' | 'thinking' | 'happy' | 'alert'
   const [eyeState, setEyeState] = useState<'normal' | 'blink' | 'thinking' | 'happy' | 'alert'>('normal');
 
+  // Popup Window Dragging & Position State
+  const [popupPosition, setPopupPosition] = useState<{ x: number; y: number } | null>(null);
+  const [isPopupDragging, setIsPopupDragging] = useState(false);
+  const popupDragStartRef = useRef<{ mouseX: number; mouseY: number; startX: number; startY: number }>({
+    mouseX: 0,
+    mouseY: 0,
+    startX: 0,
+    startY: 0,
+  });
+
+  // Whenever popup opens, initialize default position near orb or clamped safely
+  useEffect(() => {
+    if (isOpen && !popupPosition) {
+      const popWidth = Math.min(320, window.innerWidth - 24);
+      const popHeight = 400;
+      let initX = position.x > window.innerWidth / 2 ? position.x - popWidth + 30 : position.x - 10;
+      let initY = position.y > window.innerHeight / 2 ? position.y - popHeight - 10 : position.y + 70;
+
+      initX = Math.max(12, Math.min(initX, window.innerWidth - popWidth - 12));
+      initY = Math.max(12, Math.min(initY, window.innerHeight - popHeight - 12));
+
+      setPopupPosition({ x: initX, y: initY });
+    }
+  }, [isOpen, position, popupPosition]);
+
+  const handlePopupPointerDown = (e: React.PointerEvent) => {
+    if ((e.target as HTMLElement).closest('button, input, a, textarea')) return;
+
+    const popWidth = Math.min(320, window.innerWidth - 24);
+    const currentX = popupPosition?.x ?? Math.max(12, (window.innerWidth - popWidth) / 2);
+    const currentY = popupPosition?.y ?? Math.max(12, (window.innerHeight - 400) / 2);
+
+    popupDragStartRef.current = {
+      mouseX: e.clientX,
+      mouseY: e.clientY,
+      startX: currentX,
+      startY: currentY,
+    };
+    setIsPopupDragging(true);
+
+    const target = e.currentTarget as HTMLElement;
+    target.setPointerCapture(e.pointerId);
+  };
+
+  const handlePopupPointerMove = (e: React.PointerEvent) => {
+    if (!isPopupDragging) return;
+
+    const deltaX = e.clientX - popupDragStartRef.current.mouseX;
+    const deltaY = e.clientY - popupDragStartRef.current.mouseY;
+
+    const popWidth = Math.min(320, window.innerWidth - 24);
+    const popHeight = 400;
+
+    const newX = Math.max(8, Math.min(popupDragStartRef.current.startX + deltaX, window.innerWidth - popWidth - 8));
+    const newY = Math.max(8, Math.min(popupDragStartRef.current.startY + deltaY, window.innerHeight - popHeight - 8));
+
+    setPopupPosition({ x: newX, y: newY });
+  };
+
+  const handlePopupPointerUp = (e: React.PointerEvent) => {
+    if (!isPopupDragging) return;
+    setIsPopupDragging(false);
+
+    const target = e.currentTarget as HTMLElement;
+    if (target.hasPointerCapture(e.pointerId)) {
+      target.releasePointerCapture(e.pointerId);
+    }
+  };
+
+  const snapPopupTo = (target: 'top' | 'center' | 'bottom') => {
+    const popWidth = Math.min(320, window.innerWidth - 24);
+    const popHeight = 400;
+    const centerX = Math.max(12, (window.innerWidth - popWidth) / 2);
+
+    if (target === 'top') {
+      setPopupPosition({ x: centerX, y: 16 });
+    } else if (target === 'center') {
+      setPopupPosition({ x: centerX, y: Math.max(16, (window.innerHeight - popHeight) / 2) });
+    } else if (target === 'bottom') {
+      setPopupPosition({ x: centerX, y: Math.max(16, window.innerHeight - popHeight - 16) });
+    }
+  };
+
   // Query / Chat state
   const [inputValue, setInputValue] = useState('');
   const [isThinking, setIsThinking] = useState(false);
@@ -874,20 +957,18 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
     setIsThinking(false);
   };
 
-  // Determine popover position relative to orb
-  const isRightHalf = position.x > window.innerWidth / 2;
-  const isBottomHalf = position.y > window.innerHeight / 2;
-
+  // Determine popover position on screen
+  const currentPopWidth = Math.min(320, typeof window !== 'undefined' ? window.innerWidth - 24 : 320);
   const popoverStyle: React.CSSProperties = {
     position: 'fixed',
     zIndex: 9999,
-    ...(isRightHalf
-      ? { right: Math.max(12, window.innerWidth - position.x - 30) }
-      : { left: Math.max(12, position.x - 10) }),
-    ...(isBottomHalf
-      ? { bottom: Math.max(12, window.innerHeight - position.y + 16) }
-      : { top: Math.max(12, position.y + 70) }),
+    touchAction: 'none',
+    left: popupPosition ? `${popupPosition.x}px` : `${Math.max(12, (window.innerWidth - currentPopWidth) / 2)}px`,
+    top: popupPosition ? `${popupPosition.y}px` : `${Math.max(12, (window.innerHeight - 400) / 2)}px`,
   };
+
+  const isRightHalf = position.x > window.innerWidth / 2;
+  const isBottomHalf = position.y > window.innerHeight / 2;
 
   return (
     <>
@@ -1046,70 +1127,110 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
         </div>
       )}
 
-      {/* POP-UP TYPING QUERY WINDOW */}
+      {/* POP-UP TYPING QUERY WINDOW (DRAGGABLE TO ANY POSITION: TOP, BOTTOM, CENTER) */}
       {isOpen && (
         <div
           style={popoverStyle}
-          className="w-[calc(100vw-24px)] sm:w-[380px] max-h-[80vh] flex flex-col bg-slate-950 text-white border border-slate-800 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-3 duration-200 font-sans"
+          className="w-[calc(100vw-24px)] sm:w-[320px] max-h-[420px] flex flex-col bg-slate-950 text-white border border-emerald-500/40 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-150 font-sans"
         >
-          {/* Header Bar */}
-          <div className="flex items-center justify-between p-3.5 bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950 border-b border-slate-800">
-            <div className="flex items-center gap-2.5">
-              {/* Mini Orb Icon */}
-              <div className="w-8 h-8 rounded-full bg-slate-900 border border-emerald-400/50 flex items-center justify-center gap-1 shadow-xs flex-shrink-0">
-                <div className="w-1.5 h-2 bg-white rounded-full shadow-[0_0_6px_white]" />
-                <div className="w-1.5 h-2 bg-white rounded-full shadow-[0_0_6px_white]" />
-              </div>
-              <div>
-                <h3 className="text-xs font-black tracking-wider uppercase font-serif text-emerald-400 flex items-center gap-1.5 leading-none">
-                  SAPHIRABALL
-                  <span className="bg-emerald-500/20 text-emerald-300 text-[9px] px-1.5 py-0.5 rounded-full font-mono border border-emerald-500/30">
-                    OIS Core Emerald
-                  </span>
-                </h3>
-                <div className="flex items-center gap-1 text-[10px] text-amber-300 font-mono mt-1">
-                  <Clock className="w-2.5 h-2.5 text-amber-400 animate-pulse" />
-                  <span>Home Return Timer: {Math.floor(outOfHomeSeconds / 60)}:{String(outOfHomeSeconds % 60).padStart(2, '0')}</span>
+          {/* Draggable Header Bar */}
+          <div
+            onPointerDown={handlePopupPointerDown}
+            onPointerMove={handlePopupPointerMove}
+            onPointerUp={handlePopupPointerUp}
+            className="flex flex-col gap-2 p-2.5 bg-slate-900 border-b border-slate-800 cursor-grab active:cursor-grabbing select-none"
+            title="Drag window anywhere on screen"
+          >
+            {/* Top Header Row */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {/* Drag Indicator Handle Icon */}
+                <div className="p-1 rounded bg-slate-800 text-emerald-400 flex items-center justify-center">
+                  <Move className="w-3.5 h-3.5" />
                 </div>
+
+                <div>
+                  <h3 className="text-[11px] font-black tracking-wider uppercase font-serif text-emerald-400 flex items-center gap-1 leading-none">
+                    SAPHIRABALL
+                    <span className="bg-emerald-500/20 text-emerald-300 text-[8px] px-1 py-0.2 rounded font-mono border border-emerald-500/30">
+                      OIS
+                    </span>
+                  </h3>
+                  <div className="flex items-center gap-1 text-[9px] text-amber-300 font-mono mt-0.5">
+                    <Clock className="w-2 h-2 text-amber-400 animate-pulse" />
+                    <span>Timer: {Math.floor(outOfHomeSeconds / 60)}:{String(outOfHomeSeconds % 60).padStart(2, '0')}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={handleSendToHome}
+                  className="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-emerald-300 text-[9px] font-bold rounded transition-colors flex items-center gap-0.5 border border-emerald-500/30 cursor-pointer"
+                  title="Send Saphiraball to rest in his Home Pod"
+                >
+                  <Home className="w-2.5 h-2.5" />
+                  <span>Home</span>
+                </button>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                  title="Close Assistant Box"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
 
-            <div className="flex items-center gap-1">
-              <button
-                onClick={handleSendToHome}
-                className="px-2 py-1 bg-slate-800/90 hover:bg-slate-700 text-emerald-300 text-[10px] font-bold rounded-lg transition-colors flex items-center gap-1 border border-emerald-500/30"
-                title="Send Saphiraball to rest in his Home Pod"
-              >
-                <Home className="w-3 h-3" />
-                <span>Go to Home</span>
-              </button>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
-                title="Close Assistant Box"
-              >
-                <X className="w-4 h-4" />
-              </button>
+            {/* Quick Position Controllers (Snap Top, Center, Bottom) */}
+            <div className="flex items-center justify-between bg-slate-950/80 px-2 py-1 rounded-lg border border-slate-800 text-[9px]">
+              <span className="text-slate-400 font-medium flex items-center gap-1">
+                <Move className="w-2.5 h-2.5 text-emerald-400" />
+                Position:
+              </span>
+              <div className="flex items-center gap-1 font-bold">
+                <button
+                  type="button"
+                  onClick={() => snapPopupTo('top')}
+                  className="px-1.5 py-0.5 bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-300 rounded transition-colors cursor-pointer"
+                >
+                  Top
+                </button>
+                <button
+                  type="button"
+                  onClick={() => snapPopupTo('center')}
+                  className="px-1.5 py-0.5 bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-300 rounded transition-colors cursor-pointer"
+                >
+                  Center
+                </button>
+                <button
+                  type="button"
+                  onClick={() => snapPopupTo('bottom')}
+                  className="px-1.5 py-0.5 bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-300 rounded transition-colors cursor-pointer"
+                >
+                  Bottom
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Chat Messages Feed */}
-          <div ref={chatScrollRef} className="flex-1 p-3.5 space-y-3.5 overflow-y-auto max-h-[360px] text-xs">
+          <div ref={chatScrollRef} className="flex-1 p-2.5 space-y-2.5 overflow-y-auto max-h-[220px] text-[11px]">
             {messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex gap-2.5 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex gap-2 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {msg.sender === 'assistant' && (
-                  <div className="w-6 h-6 rounded-full bg-slate-900 border border-emerald-500/40 flex items-center justify-center gap-0.5 flex-shrink-0 mt-0.5">
-                    <div className="w-1 h-1.5 bg-white rounded-full" />
-                    <div className="w-1 h-1.5 bg-white rounded-full" />
+                  <div className="w-5 h-5 rounded-full bg-slate-900 border border-emerald-500/40 flex items-center justify-center gap-0.5 flex-shrink-0 mt-0.5">
+                    <div className="w-1 h-1 bg-white rounded-full" />
+                    <div className="w-1 h-1 bg-white rounded-full" />
                   </div>
                 )}
 
-                <div className={`max-w-[85%] space-y-2 ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
+                <div className={`max-w-[88%] space-y-1.5 ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
                   <div
-                    className={`p-3 rounded-2xl leading-relaxed whitespace-pre-wrap ${
+                    className={`p-2 rounded-xl leading-relaxed whitespace-pre-wrap text-[11px] ${
                       msg.sender === 'user'
                         ? 'bg-blue-600 text-white rounded-br-xs font-medium'
                         : msg.isGuardrailBlock
@@ -1124,14 +1245,14 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
                   {msg.actionButton && (
                     <button
                       onClick={msg.actionButton.onClick}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[11px] font-bold shadow-sm transition-all hover:scale-[1.02] active:scale-95"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[10px] font-bold shadow-xs transition-all cursor-pointer"
                     >
                       <span>{msg.actionButton.label}</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <ArrowRight className="w-3 h-3" />
                     </button>
                   )}
 
-                  <span className="text-[9px] text-slate-500 font-mono block px-1">
+                  <span className="text-[8px] text-slate-500 font-mono block px-1">
                     {msg.timestamp}
                   </span>
                 </div>
@@ -1139,52 +1260,45 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
             ))}
 
             {isThinking && (
-              <div className="flex items-center gap-2 text-slate-400 text-[11px] font-mono py-1">
-                <div className="w-5 h-5 rounded-full bg-slate-900 border border-amber-400/50 flex items-center justify-center gap-0.5">
+              <div className="flex items-center gap-1.5 text-slate-400 text-[10px] font-mono py-1">
+                <div className="w-4 h-4 rounded-full bg-slate-900 border border-amber-400/50 flex items-center justify-center gap-0.5">
                   <div className="w-1 h-1 bg-amber-300 rounded-full animate-ping" />
-                  <div className="w-1 h-1 bg-amber-300 rounded-full animate-ping delay-100" />
                 </div>
-                <span>Scanning Fracture Verse Wiki Engine...</span>
+                <span>Scanning Fracture Verse Engine...</span>
               </div>
             )}
           </div>
 
           {/* Quick Suggestion Chips */}
-          <div className="p-2 bg-slate-900/60 border-t border-slate-800/80 overflow-x-auto flex items-center gap-1.5 no-scrollbar">
+          <div className="p-1.5 bg-slate-900/80 border-t border-slate-800 overflow-x-auto flex items-center gap-1 no-scrollbar">
             <button
               onClick={() => handleSend('What can Saphiraball handle?')}
-              className="px-2.5 py-1 bg-emerald-950/90 hover:bg-emerald-900/80 text-emerald-300 text-[10px] font-bold rounded-lg whitespace-nowrap transition-colors flex items-center gap-1 border border-emerald-500/40"
+              className="px-2 py-0.5 bg-emerald-950/90 hover:bg-emerald-900 text-emerald-300 text-[9px] font-bold rounded whitespace-nowrap transition-colors flex items-center gap-0.5 border border-emerald-500/40 cursor-pointer"
             >
-              ⚡ Scope & Limitations
+              ⚡ Scope
             </button>
             <button
               onClick={() => handleSend('What is DOJ Division?')}
-              className="px-2.5 py-1 bg-slate-800/90 hover:bg-slate-700 text-slate-300 text-[10px] rounded-lg whitespace-nowrap transition-colors flex items-center gap-1 border border-slate-700/50"
+              className="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[9px] rounded whitespace-nowrap transition-colors cursor-pointer border border-slate-700/50"
             >
-              🏛️ DOJ Division
+              🏛️ DOJ
             </button>
             <button
               onClick={() => handleSend('How do I download PDF manual?')}
-              className="px-2.5 py-1 bg-slate-800/90 hover:bg-slate-700 text-slate-300 text-[10px] rounded-lg whitespace-nowrap transition-colors flex items-center gap-1 border border-slate-700/50"
+              className="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[9px] rounded whitespace-nowrap transition-colors cursor-pointer border border-slate-700/50"
             >
-              📄 Download PDF
+              📄 PDF
             </button>
             <button
               onClick={() => handleSend('Show HIPAA & GDPR privacy rules')}
-              className="px-2.5 py-1 bg-slate-800/90 hover:bg-slate-700 text-slate-300 text-[10px] rounded-lg whitespace-nowrap transition-colors flex items-center gap-1 border border-slate-700/50"
+              className="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[9px] rounded whitespace-nowrap transition-colors cursor-pointer border border-slate-700/50"
             >
-              🔒 HIPAA & GDPR
-            </button>
-            <button
-              onClick={() => handleSend('Strict Unsolicited Submissions Policy')}
-              className="px-2.5 py-1 bg-slate-800/90 hover:bg-slate-700 text-slate-300 text-[10px] rounded-lg whitespace-nowrap transition-colors flex items-center gap-1 border border-slate-700/50"
-            >
-              🚫 Unsolicited Pitch
+              🔒 Privacy
             </button>
           </div>
 
           {/* Typing Query Input Bar */}
-          <div className="p-2.5 bg-slate-900 border-t border-slate-800 flex items-center gap-2">
+          <div className="p-2 bg-slate-900 border-t border-slate-800 flex items-center gap-1.5">
             <input
               type="text"
               value={inputValue}
@@ -1192,16 +1306,16 @@ export const FloatingAssistantOrb: React.FC<FloatingAssistantOrbProps> = ({
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleSend();
               }}
-              placeholder="Type your question or concern..."
-              className="flex-1 bg-slate-950 text-white text-xs px-3 py-2 rounded-xl border border-slate-700/80 focus:outline-none focus:border-emerald-400 placeholder:text-slate-500 font-sans"
+              placeholder="Type your question..."
+              className="flex-1 bg-slate-950 text-white text-[11px] px-2.5 py-1.5 rounded-lg border border-slate-700/80 focus:outline-none focus:border-emerald-400 placeholder:text-slate-500 font-sans"
             />
             <button
               onClick={() => handleSend()}
               disabled={!inputValue.trim()}
-              className="p-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white rounded-xl transition-all flex items-center justify-center flex-shrink-0"
+              className="p-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white rounded-lg transition-all flex items-center justify-center flex-shrink-0 cursor-pointer"
               title="Send Question"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
