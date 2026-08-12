@@ -8,6 +8,7 @@ import {
   Lock,
   Menu,
   X,
+  ExternalLink,
 } from 'lucide-react';
 import { MANUAL_METADATA } from '../data/legalManualData';
 
@@ -28,6 +29,7 @@ interface HeaderProps {
   onCallSaphiraballOut?: () => void;
   onSendSaphiraballHome?: () => void;
   onOpenSupport?: () => void;
+  onOpenFractureVerseLink?: (e?: React.MouseEvent) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -47,6 +49,7 @@ export const Header: React.FC<HeaderProps> = ({
   onCallSaphiraballOut,
   onSendSaphiraballHome,
   onOpenSupport,
+  onOpenFractureVerseLink,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -57,17 +60,20 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
         {/* Brand Logo & Name */}
         <a
-          href="https://dfc.onhercules.app/"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="https://fracture-verse-llc.vercel.app/"
+          onClick={(e) => {
+            e.preventDefault();
+            if (onOpenFractureVerseLink) onOpenFractureVerseLink(e);
+            else window.open('https://fracture-verse-llc.vercel.app/', '_blank', 'noopener,noreferrer');
+          }}
           className="flex items-center gap-3 cursor-pointer group"
         >
           <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm flex-shrink-0 group-hover:bg-blue-700 transition-colors">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="font-serif text-lg font-black tracking-wide text-slate-900 uppercase leading-none group-hover:text-blue-600 transition-colors">
-              {MANUAL_METADATA.companyName}
+            <h1 className="font-serif text-lg font-black tracking-wide text-slate-900 uppercase leading-none group-hover:text-blue-600 transition-colors flex items-center gap-1">
+              <span>{MANUAL_METADATA.companyName}</span>
             </h1>
           </div>
         </a>
@@ -178,8 +184,24 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* 3, 4 & 5. Cookie, Accessibility & Restricted Policy Action Buttons */}
               <div className="space-y-1.5 pt-1">
-                <label className="text-[10px] font-mono text-slate-400 uppercase font-bold block">System Actions & Compliance</label>
+                <label className="text-[10px] font-mono text-slate-400 uppercase font-bold block">System Actions & Portals</label>
                 <div className="grid grid-cols-1 gap-2">
+                  <button
+                    onClick={(e) => {
+                      setIsMenuOpen(false);
+                      if (onOpenFractureVerseLink) onOpenFractureVerseLink(e);
+                      else window.open('https://fracture-verse-llc.vercel.app/', '_blank', 'noopener,noreferrer');
+                    }}
+                    className="w-full p-2.5 rounded-xl bg-slate-950 border border-emerald-500/40 hover:bg-slate-800 text-emerald-300 transition-colors flex items-center justify-between text-xs font-bold cursor-pointer"
+                    title="Visit Official Fracture-Verse Portal"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <ExternalLink className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                      <span>Official Portal Link</span>
+                    </div>
+                    <span className="text-[9px] font-mono bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/30">vercel.app</span>
+                  </button>
+
                   <button
                     onClick={() => { onOpenCookieModal(); setIsMenuOpen(false); }}
                     className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-200 hover:text-white transition-colors flex items-center gap-2.5 text-xs font-medium cursor-pointer"

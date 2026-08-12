@@ -19,6 +19,7 @@ import { AdminVerificationModal } from './components/AdminVerificationModal';
 import { SecurityMandateModal } from './components/SecurityMandateModal';
 import { PolicyAddNotification } from './components/PolicyAddNotification';
 import { AddPolicyModal } from './components/AddPolicyModal';
+import { LinkInterferenceModal } from './components/LinkInterferenceModal';
 
 import { LEGAL_ARTICLES, MANUAL_METADATA } from './data/legalManualData';
 import { Article, DivisionCategory, CookiePreferences } from './types';
@@ -55,6 +56,35 @@ export default function App() {
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isMandateModalOpen, setIsMandateModalOpen] = useState(false);
   const [isAddPolicyModalOpen, setIsAddPolicyModalOpen] = useState(false);
+  const [isLinkInterferenceModalOpen, setIsLinkInterferenceModalOpen] = useState(false);
+  const [isCheckingLink, setIsCheckingLink] = useState(false);
+
+  // Link Checker Handler for https://fracture-verse-llc.vercel.app/
+  const handleOpenFractureVerseLink = async (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    setIsCheckingLink(true);
+    const targetUrl = 'https://fracture-verse-llc.vercel.app/';
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+      await fetch(targetUrl, {
+        method: 'HEAD',
+        mode: 'no-cors',
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+      // If fetch succeeds without network error, open url
+      window.open(targetUrl, '_blank', 'noopener,noreferrer');
+    } catch (err) {
+      // If link is unavailable or connection interrupted -> Trigger mandated interference error!
+      setIsLinkInterferenceModalOpen(true);
+    } finally {
+      setIsCheckingLink(false);
+    }
+  };
 
   // Policy Notifications Queue State (Strictly 1 pop-up at a time)
   const [seenPolicyIds, setSeenPolicyIds] = useState<Set<string>>(() => {
@@ -371,6 +401,7 @@ export default function App() {
           handleCallSaphiraballOut();
           setIsSaphiraballOrbOpen(true);
         }}
+        onOpenFractureVerseLink={handleOpenFractureVerseLink}
       />
 
       {/* Main Layout */}
@@ -435,6 +466,7 @@ export default function App() {
         onOpenAccessibilityModal={() => setIsAccessibilityModalOpen(true)}
         onDownloadFullPDF={handleDownloadFullPDF}
         onNavigateSection={handleNavigateSection}
+        onOpenFractureVerseLink={handleOpenFractureVerseLink}
       />
 
       {/* Saphiraball Interactive Helper Orb */}
@@ -607,6 +639,15 @@ export default function App() {
       <SecurityMandateModal
         isOpen={isMandateModalOpen}
         onClose={() => setIsMandateModalOpen(false)}
+      />
+
+      {/* Link Interference Diagnostic Modal */}
+      <LinkInterferenceModal
+        isOpen={isLinkInterferenceModalOpen}
+        onClose={() => setIsLinkInterferenceModalOpen(false)}
+        onRetry={handleOpenFractureVerseLink}
+        isChecking={isCheckingLink}
+        targetUrl="https://fracture-verse-llc.vercel.app/"
       />
     </div>
   );
